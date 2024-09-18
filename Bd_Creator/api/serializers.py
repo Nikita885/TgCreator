@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import CustomUser
 
 
+
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -16,3 +17,4 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user.set_password(password)  # Хешируем пароль перед сохранением
         user.save()
         return user
+    

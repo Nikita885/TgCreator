@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -123,6 +124,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Устанавливаем время жизни access-токена
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Время жизни refresh-токена
+    'ROTATE_REFRESH_TOKENS': False,                 # Отключаем автоматическое обновление refresh-токена
+    'BLACKLIST_AFTER_ROTATION': False,              # Не помещаем токен в черный список после обновления
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 
 AUTH_USER_MODEL = 'api.CustomUser'
