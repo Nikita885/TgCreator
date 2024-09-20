@@ -12,10 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'Bd_Creator.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,7 +69,6 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'Bd_Creator.wsgi.application'
 
 
@@ -140,3 +139,5 @@ REST_FRAMEWORK = {
 
 
 AUTH_USER_MODEL = 'api.CustomUser'
+
+LOGIN_REDIRECT_URL = 'https://github.com/Nikita885/TgCreator' # куда перенаправляется лох после входа входа в акк
