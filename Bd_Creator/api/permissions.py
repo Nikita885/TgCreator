@@ -12,3 +12,9 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         
         # Разрешаем доступ только если пользователь работает со своей моделью
         return obj == request.user
+    
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Проверяем, что пользователь аутентифицирован и является владельцем проекта
+        return request.user in obj.owners.all()
+

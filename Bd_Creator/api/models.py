@@ -7,49 +7,51 @@ class CustomUser(AbstractUser):
     pass
 
 
+
+class Project(models.Model):
+    id = models.AutoField(primary_key=True)  # Уникальный идентификатор проекта
+    head_categories = models.ManyToManyField(
+        'Category', related_name='head_projects', verbose_name="Головные категории", null=True,
+    )  # Ссылка на несколько головных категорий проекта
+    name = models.CharField(max_length=255, verbose_name="Имя проекта")  # Название проекта
+    owners = models.ManyToManyField(CustomUser, related_name='owned_projects', verbose_name="Владельцы")  # Владельцы проекта
+    tg_token = models.CharField(max_length=255, verbose_name="Token TG")  # Токен Telegram бота
+
+    def __str__(self):
+        return self.name
+
 class Category(models.Model):
     button_name = models.CharField(max_length=255)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
-    project_id = models.IntegerField(null=True, blank=True)  # Поле для ID проекта
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='categories', verbose_name="Проект")  # Связь с проектом
     message = models.TextField(blank=True, default='')
-
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='owned_categories', verbose_name="Владелец")
     def save(self, *args, **kwargs):
-        # Если у текущего объекта нет родителя, то это "голова" и устанавливаем проект ID
-        if self.parent is None and self.project_id is None:
-            self.project_id = self.generate_project_id()
+        # Если категория не имеет родителя, значит, она головная
+        if self.parent is None:
+            # Проверяем, есть ли project_id, если нет, создаём новый проект
+            if self.project_id is None:
+                self.project_id = self.generate_project_id()
 
-        # Если у текущего объекта есть родитель, наследуем проект ID от родителя
-        if self.parent is not None:
+            # Сначала сохраняем категорию, чтобы потом можно было добавить её в head_categories
+            super().save(*args, **kwargs)
+
+            # Устанавливаем текущую категорию как головную для проекта (добавляем в head_categories)
+            self.project_id.head_categories.add(self)
+        else:
+            # Если есть родитель, наследуем project_id от родителя
             self.project_id = self.parent.project_id
+            super().save(*args, **kwargs)
 
-        super().save(*args, **kwargs)
-
-        # Если объект имеет дочерние элементы, присваиваем им тот же проект ID
+        # Если есть дочерние элементы, устанавливаем им тот же project_id
         if self.parent is None:
             for child in self.children.all():
                 child.project_id = self.project_id
                 child.save()
 
     def generate_project_id(self):
-        return Category.objects.aggregate(max_id=models.Max('project_id'))['max_id'] + 1 if Category.objects.exists() else 1
+        # Создаём новый проект и возвращаем его
+        return Project.objects.create(name=f"Project for {self.button_name}")
 
     def __str__(self):
         return self.button_name
-
-
-
-class Project(models.Model):
-    id = models.AutoField(primary_key=True)  # Уникальный идентификатор проекта
-    head_category = models.ForeignKey(
-        'Category', on_delete=models.SET_NULL, null=True, related_name='head_projects', verbose_name="Голова категорий"
-    )  # Ссылка на головную категорию проекта
-    name = models.CharField(max_length=255, verbose_name="Имя проекта")  # Название проекта
-    owners = models.ManyToManyField(CustomUser, related_name='owned_projects', verbose_name="Владельцы")  # Владельцы проекта
-
-    tg_token = models.CharField(max_length=255, verbose_name="Token TG")  # Токен Telegram бота
-
-    def __str__(self):
-        return self.name
-
-
-print(1)
