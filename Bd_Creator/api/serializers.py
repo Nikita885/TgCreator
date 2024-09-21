@@ -61,5 +61,3 @@ class CategorySerializer(serializers.ModelSerializer):
         owner = validated_data.pop('owner', None)
         category = Category.objects.create(**validated_data, owner=owner)  # Указываем owner при создании
         return category
-
-

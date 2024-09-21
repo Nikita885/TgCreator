@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+
 from .models import CustomUser, Project, Category
 from .serializers import CustomUserSerializer, ProjectSerializer, CategorySerializer
 from .permissions import IsOwnerOrReadOnly, IsOwner
@@ -7,6 +8,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import RegistrationForm
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 def register(request):
     if request.method == 'POST':
@@ -23,12 +27,7 @@ class UserViewSet(ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [IsOwnerOrReadOnly]
-
-    def get_queryset(self):
-        # Возвращаем только свою модель для авторизованного пользователя
-        if self.request.user.is_authenticated:
-            return CustomUser.objects.filter(id=self.request.user.id)
-        return CustomUser.objects.none()  # Если пользователь не аутентифицирован
+    
 class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated, IsOwner]
