@@ -11,6 +11,15 @@ from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+from django.http import JsonResponse, HttpResponseRedirect
+from django.middleware.csrf import get_token
+from django.contrib.auth.forms import AuthenticationForm
+
 def register(request):
     #print(1)
     if request.method == 'POST':
@@ -23,7 +32,7 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
 def home(request, exception):
-    return redirect('login')
+    return render(request, 'test.html')
 
     
 
@@ -60,5 +69,43 @@ def generate_token(user):
     refresh = RefreshToken.for_user(user)
     return str(refresh.access_token)
 
-class CustomLoginView(LoginView):
-    template_name = 'login.html'
+
+
+
+class CustomLoginView(TokenObtainPairView):
+    def get(self, request, *args, **kwargs):
+        form = AuthenticationForm()
+        return render(request, 'login.html', {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = AuthenticationForm(request, data=request.POST)
+
+        if form.is_valid():
+            # Получаем токен через стандартное поведение TokenObtainPairView
+            response = super().post(request, *args, **kwargs)
+            if response.status_code == 200:
+                token = response.data['access']
+                
+                # Создаем новый ответ и сохраняем токен в куки
+                res = HttpResponseRedirect('/test/')
+                res.set_cookie(
+                    key='access_token',
+                    value=f'Bearer {token}',
+                    httponly=True,
+                    samesite='Strict',
+                )
+                res['X-CSRFToken'] = get_token(request)
+
+                # Перенаправляем на test.html
+                return res
+            else:
+                return JsonResponse({'message': 'Invalid credentials'}, status=400)
+        else:
+            return render(request, 'login.html', {'form': form})
+        
+
+def logout_view(request):
+    print(1)
+    response = HttpResponseRedirect('/test/')
+    response.delete_cookie('access_token')  # Удаляем токен из куков
+    return response

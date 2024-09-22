@@ -1,16 +1,16 @@
-from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 
-class AuthenticatedRedirectMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
+def login_required_middleware(get_response):
+    def middleware(request):
+        # Проверяем, не находимся ли мы на странице логина или регистрации
+        if request.path in ['/login/', '/register/']:
+            return get_response(request)
 
-    def __call__(self, request):
-        # Получаем токен из куки
-        auth_token = request.COOKIES.get('auth_token')
+        # Проверяем наличие токена в куках
+        print(request.COOKIES.get('access_token'))
+        if not request.COOKIES.get('access_token'):
+            return HttpResponseRedirect('/login/')  # перенаправляем на страницу авторизации
+        
+        return get_response(request)
 
-        # Проверяем, если токен есть и пользователь пытается зайти на /login/ или /register/
-        if auth_token and request.path in ['/login/', '/register/']:
-            return redirect('/')  # Перенаправляем на главную или другую страницу
-
-        response = self.get_response(request)
-        return response
+    return middleware
