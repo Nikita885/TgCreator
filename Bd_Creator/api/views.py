@@ -8,11 +8,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import RegistrationForm
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import status
+
+from rest_framework_simplejwt.tokens import RefreshToken
 
 def register(request):
+    #print(1)
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -22,12 +22,17 @@ def register(request):
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
+def home(request, exception):
+    return redirect('login')
+
+    
+
 
 class UserViewSet(ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [IsOwnerOrReadOnly]
-    
+
 class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated, IsOwner]
@@ -51,7 +56,9 @@ class CategoryViewSet(ModelViewSet):
         # Возвращать только те проекты, где текущий пользователь является владельцем
         return Category.objects.filter(owner=self.request.user)
     
+def generate_token(user):
+    refresh = RefreshToken.for_user(user)
+    return str(refresh.access_token)
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
-    

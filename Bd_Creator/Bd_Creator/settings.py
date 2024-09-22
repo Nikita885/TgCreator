@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(y@ol**^l59c@ku!l)oy(8v8$7_y9-9_lu@wq54!&!hac34^2)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.AuthenticatedRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'Bd_Creator.urls'
@@ -141,3 +142,4 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'api.CustomUser'
 
 LOGIN_REDIRECT_URL = 'https://github.com/Nikita885/TgCreator' # куда перенаправляется лох после входа входа в акк
+
