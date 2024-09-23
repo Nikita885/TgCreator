@@ -1,32 +1,18 @@
-"""
-URL configuration for Bd_Creator project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
-from api.views import register, home, CustomLoginView, logout_view
+from api.views import register, CustomLoginView, logout_view, home_view
 from django.conf.urls import handler404
+from django.shortcuts import redirect
 
 urlpatterns = [
-    #path('', home, name='home'),
+    path('', home_view, name='home'),
     path('admin/', admin.site.urls),
     path('register/', register, name='register'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', logout_view, name='logout'),
-    path('api/', include('api.urls'))
+    path('api/', include('api.urls')),
 
 ]
-handler404 = 'api.views.home'
+def handler404(request, exception):
+    return redirect('home')
+handler404 = handler404

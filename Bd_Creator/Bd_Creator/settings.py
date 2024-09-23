@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-(y@ol**^l59c@ku!l)oy(8v8$7_y9-9_lu@wq54!&!hac34^2)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+
 ALLOWED_HOSTS = ['*']
 
 
@@ -54,6 +55,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'Bd_Creator.urls'
+
+
 
 TEMPLATES = [
     {

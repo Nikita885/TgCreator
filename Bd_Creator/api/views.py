@@ -3,7 +3,6 @@ from rest_framework.viewsets import ModelViewSet
 from .models import CustomUser, Project, Category
 from .serializers import CustomUserSerializer, ProjectSerializer, CategorySerializer
 from .permissions import IsOwnerOrReadOnly, IsOwner
-from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import RegistrationForm
@@ -14,8 +13,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
-from rest_framework.views import APIView
-from django.contrib.auth import authenticate
 from django.http import JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.contrib.auth.forms import AuthenticationForm
@@ -31,11 +28,9 @@ def register(request):
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
-def home(request, exception):
-    return render(request, 'test.html')
-
     
-
+def home_view(request):
+    return render(request, 'test.html')
 
 class UserViewSet(ModelViewSet):
     queryset = CustomUser.objects.all()
@@ -65,11 +60,6 @@ class CategoryViewSet(ModelViewSet):
         # Возвращать только те проекты, где текущий пользователь является владельцем
         return Category.objects.filter(owner=self.request.user)
     
-def generate_token(user):
-    refresh = RefreshToken.for_user(user)
-    return str(refresh.access_token)
-
-
 
 
 class CustomLoginView(TokenObtainPairView):
@@ -87,7 +77,7 @@ class CustomLoginView(TokenObtainPairView):
                 token = response.data['access']
                 
                 # Создаем новый ответ и сохраняем токен в куки
-                res = HttpResponseRedirect('/test/')
+                res = HttpResponseRedirect('/')
                 res.set_cookie(
                     key='access_token',
                     value=f'Bearer {token}',
@@ -105,7 +95,6 @@ class CustomLoginView(TokenObtainPairView):
         
 
 def logout_view(request):
-    print(1)
-    response = HttpResponseRedirect('/test/')
+    response = HttpResponseRedirect('/')
     response.delete_cookie('access_token')  # Удаляем токен из куков
     return response
