@@ -1,0 +1,43 @@
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
+}       
+
+.header-content {   
+    display: flex;
+    width: 100%;
+    max-width: 1800px; 
+    justify-content: space-between;
+}
+.logo {
+    color: white;
+    font-size: 16px;
+    position: relative;
+
+}
+
+.links ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+
+}
+
+
+.links li {
+    font-size: 16px;
+    margin-left: 11px;
+}
+
+a {
+    color: rgb(148, 147, 147);
+    text-decoration: none;
+}
+
+a:hover {
+    color: lightgray;
+}
