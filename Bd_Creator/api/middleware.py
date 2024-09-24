@@ -1,27 +1,36 @@
 from django.http import HttpResponseRedirect
+import logging
 
+logger = logging.getLogger(__name__)
+
+def redirect_on_404(get_response):
+    def middleware(request):
+        response = get_response(request)
+        if response.status_code == 404:
+            return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
+        return response
+    return middleware
 def login_required_middleware(get_response):
     def middleware(request):
-        # Проверяем наличие токена в куках
         token = request.COOKIES.get('access_token')
         
+        # Пропускаем запросы к статическим файлам
+        if request.path.startswith('/static/') or request.path.startswith('/admin/'):
+            #print(request.path)
+            logger.debug("Пропускаем запрос к статическому файлу.")
+            return get_response(request)
+
         # Если токен есть, значит пользователь авторизован
         if token:
-            
-            # Проверяем, не находимся ли мы на странице логина или регистрации
             if request.path in ['/login/', '/register/']:
-                return HttpResponseRedirect('/')  # Перенаправляем на главную страницу или другую
-
-            # Здесь вы можете добавить логику декодирования токена, если нужно
-            # Например, получить информацию о пользователе
-            
+                logger.debug("Пользователь авторизован, перенаправление на главную.")
+                return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
         else:
-            
-            # Если токена нет, проверяем, не находимся ли мы на странице логина или регистрации
             if request.path in ['/login/', '/register/']:
                 return get_response(request)
             else:
-                return HttpResponseRedirect('/login/')  # перенаправляем на страницу авторизации
+                logger.debug("Токена нет, перенаправление на страницу логина.")
+                return HttpResponseRedirect('/login/')  # Перенаправляем на страницу авторизации
         
         return get_response(request)
 

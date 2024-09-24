@@ -17,6 +17,8 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.contrib.auth.forms import AuthenticationForm
 
+
+
 def register(request):
     #print(1)
     if request.method == 'POST':

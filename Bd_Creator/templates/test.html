@@ -20,6 +20,7 @@
                 </ul>
             </div>
             <div class="logo">ADMIN PANEL</div>
+            <p>{% static 'css/style.css' %}</p>
             
         </div>
     </div>
@@ -28,5 +29,14 @@
         {% csrf_token %}
         <button type="submit">Выход</button>
     </form>
+    <br>
+    <br>
+    <br>
+    
+    <div class="footer">
+        <button class="buttonfoot">+</button>
+        <button class="buttonfoot">--</button>
+
+      </div>
 </body>
 </html>
