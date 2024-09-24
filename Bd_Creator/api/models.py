@@ -14,7 +14,7 @@ class Project(models.Model):
         'Category', related_name='head_projects', verbose_name="Головные категории", null=True,
     )  # Ссылка на несколько головных категорий проекта
     name = models.CharField(max_length=255, verbose_name="Имя проекта")  # Название проекта
-    owners = models.ManyToManyField(CustomUser, related_name='owned_projects', verbose_name="Владельцы")  # Владельцы проекта
+    owners = models.ManyToManyField(CustomUser, related_name='owned_projects', verbose_name="Владельцы", null=True)  # Владельцы проекта
     tg_token = models.CharField(max_length=255, verbose_name="Token TG")  # Токен Telegram бота
 
     def __str__(self):
