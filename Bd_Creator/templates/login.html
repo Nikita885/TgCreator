@@ -1,27 +1,154 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 
-    <title>login</title>
+    <title>Login</title>
+    <style>
+        
+        body {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgb(0, 0, 0));
+            color: white;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-13px);
+            }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+            }
+        }
+        
+        .login-container {
+            background-color: rgba(4, 109, 4, 0.938);
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 35px rgba(0, 255, 0, 0.5);
+            transition: transform 0.7s ease-in-out, padding 0.7s ease-in-out;
+            animation: fadeIn 0.7s ease-in-out;
+        }
+
+        h2 {
+            font-size: 2em;
+            text-align: center; 
+            margin-left: 10px; 
+        }
+
+        .error-message {
+            
+            color: red;
+            margin-bottom: 10px;
+            text-align: left; 
+            height: 40px; 
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-left: 2px; 
+        }
+
+        .error {
+            transform: scale(1.02);
+            padding: 25px;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        input {
+            background-color: transparent;
+            color: white;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            outline: none;
+            padding: 1px;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-align: center;
+        }   
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);    
+        }
+
+        button {
+
+            align-self: center;
+            color: rgb(245, 243, 243);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            margin-left: 35px;
+            display: block;
+            width: 81%;
+            background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
+            border-radius: 25px; 
+            padding: 10px 20px;
+            box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: lightgray;
+            transform: scale(1.05);
+
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0); }
+            25% { transform: translate(-2px, 0); }
+            50% { transform: translate(2px, 0); }
+            75% { transform: translate(-2px, 0); }
+            100% { transform: translate(0); }
+        }
+
+        .no-acc a {
+            color: rgb(148, 147, 147);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: lightgray;
+        }
+
+        .no-acc {
+            color: rgb(255, 255, 255);
+            text-align: center;
+            margin-top: 10px; 
+        }
+    </style>
 </head>
 <body>
-    <h2>Login</h2>
+    
+    <div class="login-container{% if form.non_field_errors %} error{% endif %}">
+        <h2>Login</h2>
 
-    {% if form.non_field_errors %}
+        {% if form.non_field_errors %}
         <div class="error-message">
-            
+            {{ form.non_field_errors }}
         </div>
-    {% endif %}
+        {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-        <p>Нету аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
-    </form>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+            <p class="no-acc">Нету аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+        </form>
+    </div>
 </body>
 </html>

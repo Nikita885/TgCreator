@@ -17,6 +17,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.contrib.auth.forms import AuthenticationForm
 
+from django.views.generic import TemplateView
 
 
 def register(request):
