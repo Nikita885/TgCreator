@@ -2,6 +2,13 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from .models import CustomUser
+from .models import Project, Category
+from .models import Category
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['button_name', 'parent']
 
 class CustomAuthenticationForm(AuthenticationForm):
    
@@ -20,3 +27,15 @@ class RegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['name', 'tg_token', 'head_categories']
+
+    # Переопределяем поле head_categories для корректного отображения в форме
+    head_categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True
+    )

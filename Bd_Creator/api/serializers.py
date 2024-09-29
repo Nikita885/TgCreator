@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser, Project, Category
+import requests
 
 
 
@@ -20,19 +21,27 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
 
 class ProjectSerializer(serializers.ModelSerializer):
-    owners = serializers.PrimaryKeyRelatedField(many=True, queryset=CustomUser.objects.all())
-
     class Meta:
         model = Project
         fields = ['id', 'head_categories', 'name', 'owners', 'tg_token']
 
+    def validate_tg_token(self, value):
+        # Проверка валидности Telegram токена
+        url = f'https://api.telegram.org/bot{value}/getMe'
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            raise serializers.ValidationError('Недействительный токен Telegram. Пожалуйста, введите корректный токен.')
+
+        return value
+
     def create(self, validated_data):
-        # Удаляем поле owners из validated_data
         validated_data.pop('owners', None)
         project = Project.objects.create(**validated_data)
-        # Добавляем текущего пользователя в поле owners
-        project.owners.add(self.context['request'].user)
+        project.owners.add(self.context['request'].user)  # Теперь request доступен
         return project
+
+
 
 
 
@@ -57,7 +66,7 @@ class CategorySerializer(serializers.ModelSerializer):
         return list(obj.children.values_list('id', flat=True))
     
     def create(self, validated_data):
-        # Удаляем поле owner из validated_data, если нужно (если оно не нужно)
-        owner = validated_data.pop('owner', None)
-        category = Category.objects.create(**validated_data, owner=owner)  # Указываем owner при создании
-        return category
+        validated_data.pop('owners', None)
+        project = Project.objects.create(**validated_data)
+        project.owners.add(self.context['request'].user)  # Теперь request доступен
+        return project

@@ -13,13 +13,58 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
 from django.contrib.auth.forms import AuthenticationForm
 
+<<<<<<< HEAD
 from django.views.generic import TemplateView
+=======
+from django.views.decorators.csrf import csrf_exempt
+import json
+>>>>>>> 6c07786c4ead1f643e6c2573eeb59445a2eb7187
 
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
+from .forms import CategoryForm
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required
+from rest_framework.views import APIView
 
+def add_category(request, project_id):
+    if request.method == 'POST':
+        # Проверяем, аутентифицирован ли пользователь
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "User not authenticated"}, status=401)
+
+        # Получаем проект, к которому добавляется категория
+        project = get_object_or_404(Project, id=project_id)
+
+        # Получаем данные из запроса
+        try:
+            data = json.loads(request.body)  # Загружаем данные JSON из тела запроса
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        # Создаем новый словарь с необходимыми данными
+        new_data = {
+            'button_name': data.get('button_name'),
+            'parent': data.get('parent'),  # если это ID родительской категории
+            'message': data.get('message'),
+            'project_id': project.id,  # Добавляем project_id
+            'owner': request.user.id  # Устанавливаем владельца
+        }
+
+        # Создание категории
+        serializer = CategorySerializer(data=new_data)
+        if serializer.is_valid():
+            category = serializer.save()  # Сохраняем категорию
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 def register(request):
     #print(1)
     if request.method == 'POST':
@@ -34,6 +79,9 @@ def register(request):
     
 def home_view(request):
     return render(request, 'test.html')
+
+def projects(request):
+    return render(request, 'projects.html')
 
 class UserViewSet(ModelViewSet):
     queryset = CustomUser.objects.all()
@@ -101,3 +149,46 @@ def logout_view(request):
     response = HttpResponseRedirect('/')
     response.delete_cookie('access_token')  # Удаляем токен из куков
     return response
+
+
+
+def create_project(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        name = data.get('name')
+        tg_token = data.get('tg_token')
+
+        if name and tg_token:
+            try:
+                project = Project.objects.create(name=name, tg_token=tg_token)
+                project.owners.add(request.user)  # Добавляем текущего пользователя как владельца
+                return JsonResponse({'id': project.id, 'name': project.name}, status=201)
+            except ValidationError as e:
+                return JsonResponse({'error': str(e)}, status=400)
+
+        return JsonResponse({'error': 'Missing data'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_projects(request):
+    projects = Project.objects.all()
+    project_list = [{'id': project.id, 'name': project.name} for project in projects]
+    return JsonResponse({'projects': project_list}, safe=False)
+
+
+def delete_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+
+    if request.method == 'POST':
+        project.delete()
+        return redirect('/')  # Перенаправляем на главную или страницу проектов
+    
+    # Если запрос не является POST (например, GET), возвращаем ошибку 405
+    return HttpResponse(status=405)  # Метод не разрешен
+
+def project_detail(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    context = {
+        'project': project
+    }
+    return render(request, 'project_detail.html', context)

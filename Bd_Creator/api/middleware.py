@@ -4,8 +4,11 @@ import logging
 def redirect_on_404(get_response):
     def middleware(request):
         response = get_response(request)
-        if response.status_code == 404:
+        
+        # Проверяем, что 404 страница не для конкретных маршрутов, например для динамических URL с проектами
+        if response.status_code == 404 and not request.path.startswith('/projects/'):
             return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
+
         return response
     return middleware
 def login_required_middleware(get_response):

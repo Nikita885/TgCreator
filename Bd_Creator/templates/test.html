@@ -14,7 +14,7 @@
         <div class="header-content">
             <div class="links">
                 <ul>
-                    <li><a href="#">projects</a></li>
+                    <li><a href="{% url 'projects' %}">projects</a></li>
                     <li><a href="#">profile</a></li>
 
                 </ul>
@@ -24,10 +24,7 @@
         </div>
     </div>
     
-    <form action="{% url 'logout' %}" method="post" id="logout-form">
-        {% csrf_token %}
-        <button type="submit">Выход</button>
-    </form>
+    
     <br>
     <br>
     <br>
@@ -37,5 +34,9 @@
         <button class="buttonfoot">--</button>
 
       </div>
+    <form action="{% url 'logout' %}" method="post" id="logout-form">
+        {% csrf_token %}
+        <button type="submit">Выход</button>
+    </form>
 </body>
 </html>
