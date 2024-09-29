@@ -9,35 +9,35 @@ body {
     margin: 0;
     overflow: hidden;
 }
+
 @keyframes fadeIn {
-from {
-    opacity: 0;
-    transform: translateY(-13px);
+    from {
+        opacity: 0;
+        transform: translateY(-13px);
     }
-to {
-    opacity: 1;
-    transform: translateY(0);
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.login-container {
+.register-container {
     background-color: rgba(4, 109, 4, 0.938);
-    padding: 20px;
+    padding: 25px;
     border-radius: 8px;
-    width: 300px;
+    width: 400px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 35px rgba(0, 255, 0, 0.5);
     transition: transform 0.7s ease-in-out, padding 0.7s ease-in-out;
     animation: fadeIn 0.7s ease-in-out;
 }
 
 h2 {
-    font-size: 2em;
+    font-size: 1.7em;
     text-align: center; 
     margin-left: 10px; 
 }
 
 .error-message {
-    
     color: red;
     margin-bottom: 10px;
     text-align: left; 
@@ -48,19 +48,13 @@ h2 {
     margin-left: 2px; 
 }
 
-.error {
-    transform: scale(1.02);
-    padding: 25px;
-    animation: shake 0.3s ease-in-out;
-}
-
 input {
     background-color: transparent;
     color: white;
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     outline: none;
-    padding: 1px;
+    padding: 5px;
     width: 100%;
     margin-bottom: 20px;
     font-size: 16px;
@@ -72,16 +66,15 @@ input::placeholder {
 }
 
 button {
-
     align-self: center;
     color: rgb(245, 243, 243);
     border: none;
     cursor: pointer;
     font-size: 16px;
     margin-top: 10px;
-    margin-left: 35px;
+    margin-left: 6px;
     display: block;
-    width: 81%;
+    width: 100%;
     background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
     border-radius: 25px; 
     padding: 10px 20px;
@@ -92,15 +85,6 @@ button {
 button:hover {
     background-color: lightgray;
     transform: scale(1.05);
-
-}
-
-@keyframes shake {
-    0% { transform: translate(0); }
-    25% { transform: translate(-2px, 0); }
-    50% { transform: translate(2px, 0); }
-    75% { transform: translate(-2px, 0); }
-    100% { transform: translate(0); }
 }
 
 .no-acc a {
