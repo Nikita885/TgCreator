@@ -17,12 +17,8 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
 from django.contrib.auth.forms import AuthenticationForm
 
-<<<<<<< HEAD
-from django.views.generic import TemplateView
-=======
 from django.views.decorators.csrf import csrf_exempt
 import json
->>>>>>> 6c07786c4ead1f643e6c2573eeb59445a2eb7187
 
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
