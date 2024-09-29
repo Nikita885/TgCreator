@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>{{ project.name }}</title>
+    
+    <script src="{% static 'js/category.js' %}"></script> <!-- Подключите ваш JavaScript -->
+</head>
+<body>
+    <h1>Информация о проекте: {{ project.name }}</h1>
+
+    <p><strong>Имя проекта:</strong> {{ project.name }}</p>
+    <p><strong>Telegram Token:</strong> {{ project.tg_token }}</p>
+
+    <!-- Скрытое поле для ID проекта -->
+    <input type="hidden" id="project_id" value="{{ project.id }}">
+
+    <!-- Форма для добавления категории -->
+    <form id="add-category-form" action="{% url 'add_category' project.id %}" method="post">
+        {% csrf_token %}
+        <label for="button_name">Имя категории:</label>
+        <input type="text" id="button_name" name="button_name" required>
+        
+        <label for="parent">Родительская категория:</label>
+        <select id="parent" name="parent">
+            <option value="">Нет</option>  <!-- Значение по умолчанию -->
+            {% for category in project.categories.all %}
+                <option value="{{ category.id }}">{{ category.button_name }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit">Добавить категорию</button>
+    </form>
+
+    <!-- Кнопка для удаления проекта -->
+    <form action="{% url 'delete_project' project.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit" onclick="return confirm('Вы уверены, что хотите удалить проект?')">Удалить проект</button>
+    </form>
+
+    <!-- Кнопка для возврата на главную -->
+    <a href="/projects/">Назад к списку проектов</a>
+</body>
+</html>

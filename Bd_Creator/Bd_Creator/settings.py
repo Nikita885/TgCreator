@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'api.middleware.redirect_on_404',
 ]
 
+
 ROOT_URLCONF = 'Bd_Creator.urls'
 
 
