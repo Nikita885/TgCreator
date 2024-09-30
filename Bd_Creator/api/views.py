@@ -8,8 +8,6 @@ from django.contrib.auth import login
 from .forms import RegistrationForm
 from rest_framework.permissions import IsAuthenticated
 
-from rest_framework_simplejwt.tokens import RefreshToken
-
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -17,17 +15,11 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
 from django.contrib.auth.forms import AuthenticationForm
 
-from django.views.decorators.csrf import csrf_exempt
 import json
 
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
-from .forms import CategoryForm
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from django.contrib.auth.decorators import login_required
-from rest_framework.views import APIView
+
 import requests
 
 def add_category(request, project_id):
@@ -179,7 +171,10 @@ def create_project(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def get_projects(request):
-    projects = Project.objects.all()
+    # Получаем текущего пользователя
+    user = request.idusers
+
+    projects = Project.objects.filter(owners=user)
     project_list = [{'id': project.id, 'name': project.name} for project in projects]
     return JsonResponse({'projects': project_list}, safe=False)
 

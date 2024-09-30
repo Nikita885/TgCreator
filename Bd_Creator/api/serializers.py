@@ -21,6 +21,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
 
 class ProjectSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Project
         fields = ['id', 'head_categories', 'name', 'owners', 'tg_token']

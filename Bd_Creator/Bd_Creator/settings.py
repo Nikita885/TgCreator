@@ -136,7 +136,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=365),  # Устанавливаем время жизни access-токена
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=365),  # Устанавливаем время жизни access-токена
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Время жизни refresh-токена
     'ROTATE_REFRESH_TOKENS': False,                 # Отключаем автоматическое обновление refresh-токена
     'BLACKLIST_AFTER_ROTATION': False,              # Не помещаем токен в черный список после обновления

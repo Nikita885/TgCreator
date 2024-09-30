@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
+
 def redirect_on_404(get_response):
     def middleware(request):
         response = get_response(request)
@@ -13,17 +14,20 @@ def redirect_on_404(get_response):
 
         return response
     return middleware
+
+
 def login_required_middleware(get_response):
     def middleware(request):
         token = request.COOKIES.get('access_token')
-
+        #print(token)
         if token:
             try:
                 if token.startswith('Bearer '):
                     token = token.split('Bearer ')[1]
 
                 decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-
+                request.idusers = decoded_token['user_id']
+                #print(decoded_token)
                 # Если токен декодирован успешно, проверяем путь
                 if request.path in ['/login/', '/register/']:
                     return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
