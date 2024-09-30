@@ -17,9 +17,6 @@
     <p><strong>Имя проекта:</strong> {{ project.name }}</p>
     <p><strong>Telegram Token:</strong> {{ project.tg_token }}</p>
 
-    <!-- Скрытое поле для ID проекта -->
-    <input type="hidden" id="project_id" value="{{ project.id }}">
-
     <!-- Форма для добавления категории -->
     <form id="add-category-form" action="{% url 'add_category' project.id %}" method="post">
         {% csrf_token %}

@@ -21,31 +21,37 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
 import requests
-def create_category(request):
+
+import re
+
+def create_category(request, project_id):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        name = data.get('name')
-        tg_token = data.get('tg_token')
+        try:
+            print(f"Raw request body: {request.body}") 
+            data = json.loads(request.body)
+            print(f"Data received: {data}",2132131)  # Debug log
 
-        if name and tg_token:
-            # Проверка валидности токена Telegram
-            if not is_valid_telegram_token(tg_token):
-                return JsonResponse({'error': 'Invalid Telegram token'}, status=400)
-            
-            # Проверка, существует ли токен в базе данных
-            if Project.objects.filter(tg_token=tg_token).exists():
-                return JsonResponse({'error': 'This Telegram token already exists'}, status=400)
+            button_name = data.get('button_name')
+            parent_id = data.get('parent')
 
-            try:
-                project = Project.objects.create(name=name, tg_token=tg_token)
-                project.owners.add(request.user)  # Добавляем текущего пользователя как владельца
-                return JsonResponse({'id': project.id, 'name': project.name}, status=201)
-            except ValidationError as e:
-                return JsonResponse({'error': str(e)}, status=400)
+            if button_name:  # Ensure button_name is present
+                parent = Category.objects.get(id=parent_id) if parent_id else None
+                category = Category.objects.create(button_name=button_name, parent=parent)
 
-        return JsonResponse({'error': 'Missing data'}, status=400)
+                category.owners.add(request.user.id)  # Assuming you're using request.user
 
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+                category.project_id = project_id
+                category.save()
+
+                return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
+
+            return JsonResponse({'error': 'Missing button_name'}, status=400)
+
+        except json.JSONDecodeError as e:
+            print(f"JSON decoding failed: {e}")
+            return JsonResponse({'error': 'Ошибка обработки данных'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def add_category(request, project_id):
     if request.method == 'POST':
@@ -172,7 +178,7 @@ def is_valid_telegram_token(token):
 def create_project(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        print(request.body)
+        
         name = data.get('name')
         tg_token = data.get('tg_token')
 
@@ -201,7 +207,7 @@ def get_projects(request):
     user = request.idusers
 
     projects = Project.objects.filter(owners=user)
-    print(user)
+    
     project_list = [{'id': project.id, 'name': project.name} for project in projects]
     return JsonResponse({'projects': project_list}, safe=False)
 
@@ -218,6 +224,7 @@ def delete_project(request, project_id):
 
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
+    print(request.path)
     context = {
         'project': project
     }

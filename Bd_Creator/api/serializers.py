@@ -53,21 +53,28 @@ class CategoryIDSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    
     children = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), allow_null=True)
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), required=False)
 
     class Meta:
         model = Category
-        fields = ['id', 'button_name', 'parent', 'children', 'project_id', 'message', 'owner']  # Используем owner
+        fields = ['id', 'button_name', 'parent', 'children', 'project_id', 'message', 'owner']
 
     def get_children(self, obj):
         # Возвращаем список ID дочерних категорий
         return list(obj.children.values_list('id', flat=True))
-    
+
     def create(self, validated_data):
-        validated_data.pop('owners', None)
-        project = Project.objects.create(**validated_data)
-        project.owners.add(self.context['request'].user)  # Теперь request доступен
-        return project
+        # Получаем владельца из контекста запроса (например, текущий пользователь)
+        request = self.context.get('request', None)
+        owner = request.user if request else None
+        
+        # Убираем поле owner из validated_data, если оно есть
+        validated_data['owner'] = owner
+
+        # Создаём объект Category
+        category = Category.objects.create(**validated_data)
+
+        # Дополнительная логика (например, обработка дочерних категорий или проекта) может быть здесь
+        return category
