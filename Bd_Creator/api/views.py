@@ -21,6 +21,31 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
 import requests
+def create_category(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        name = data.get('name')
+        tg_token = data.get('tg_token')
+
+        if name and tg_token:
+            # Проверка валидности токена Telegram
+            if not is_valid_telegram_token(tg_token):
+                return JsonResponse({'error': 'Invalid Telegram token'}, status=400)
+            
+            # Проверка, существует ли токен в базе данных
+            if Project.objects.filter(tg_token=tg_token).exists():
+                return JsonResponse({'error': 'This Telegram token already exists'}, status=400)
+
+            try:
+                project = Project.objects.create(name=name, tg_token=tg_token)
+                project.owners.add(request.user)  # Добавляем текущего пользователя как владельца
+                return JsonResponse({'id': project.id, 'name': project.name}, status=201)
+            except ValidationError as e:
+                return JsonResponse({'error': str(e)}, status=400)
+
+        return JsonResponse({'error': 'Missing data'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def add_category(request, project_id):
     if request.method == 'POST':
@@ -147,6 +172,7 @@ def is_valid_telegram_token(token):
 def create_project(request):
     if request.method == 'POST':
         data = json.loads(request.body)
+        print(request.body)
         name = data.get('name')
         tg_token = data.get('tg_token')
 
@@ -161,7 +187,7 @@ def create_project(request):
 
             try:
                 project = Project.objects.create(name=name, tg_token=tg_token)
-                project.owners.add(request.user)  # Добавляем текущего пользователя как владельца
+                project.owners.add(request.idusers)  # Добавляем текущего пользователя как владельца
                 return JsonResponse({'id': project.id, 'name': project.name}, status=201)
             except ValidationError as e:
                 return JsonResponse({'error': str(e)}, status=400)
@@ -175,6 +201,7 @@ def get_projects(request):
     user = request.idusers
 
     projects = Project.objects.filter(owners=user)
+    print(user)
     project_list = [{'id': project.id, 'name': project.name} for project in projects]
     return JsonResponse({'projects': project_list}, safe=False)
 
