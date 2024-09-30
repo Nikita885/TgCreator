@@ -1,5 +1,7 @@
+import jwt
+from django.conf import settings
 from django.http import HttpResponseRedirect
-import logging
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 def redirect_on_404(get_response):
     def middleware(request):
@@ -15,16 +17,35 @@ def login_required_middleware(get_response):
     def middleware(request):
         token = request.COOKIES.get('access_token')
 
-        # Если токен есть, значит пользователь авторизован
         if token:
-            if request.path in ['/login/', '/register/']:
-                return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
+            try:
+                if token.startswith('Bearer '):
+                    token = token.split('Bearer ')[1]
+
+                decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+
+                # Если токен декодирован успешно, проверяем путь
+                if request.path in ['/login/', '/register/']:
+                    return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
+
+            except ExpiredSignatureError:
+                # Если пользователь уже на странице логина, не перенаправляем
+                if request.path != '/login/':
+                    return HttpResponseRedirect('/login/')  # Перенаправляем на страницу логина
+
+            except InvalidTokenError:
+                if request.path != '/login/':
+                    return HttpResponseRedirect('/login/')
+
+            except Exception:
+                if request.path != '/login/':
+                    return HttpResponseRedirect('/login/')
+
         else:
-            if request.path in ['/login/', '/register/']:
-                return get_response(request)
-            else:
+            # Если токена нет и пользователь пытается попасть на защищённые страницы
+            if request.path not in ['/login/', '/register/']:
                 return HttpResponseRedirect('/login/')  # Перенаправляем на страницу авторизации
-        
+
         return get_response(request)
 
     return middleware

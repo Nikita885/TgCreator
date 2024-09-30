@@ -150,6 +150,7 @@ def logout_view(request):
 
 def create_project(request):
     if request.method == 'POST':
+        print(IsOwner())
         data = json.loads(request.body)
         name = data.get('name')
         tg_token = data.get('tg_token')
