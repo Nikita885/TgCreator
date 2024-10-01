@@ -1,0 +1,13 @@
+.category-link {
+    text-decoration: none;
+    cursor: pointer;
+    color: blue;
+}
+
+.category-actions {
+    margin-top: 5px;
+}
+
+.category-actions button {
+    margin-right: 10px;
+}

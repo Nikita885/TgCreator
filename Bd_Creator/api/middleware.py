@@ -10,7 +10,7 @@ def redirect_on_404(get_response):
         
         # Проверяем, что 404 страница не для конкретных маршрутов, например для динамических URL с проектами
         if response.status_code == 404 and not request.path.startswith('/projects/'):
-            return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
+            return HttpResponseRedirect('/projects/')  # Перенаправляем на главную страницу
 
         return response
     return middleware
@@ -30,7 +30,7 @@ def login_required_middleware(get_response):
                 #print(decoded_token)
                 # Если токен декодирован успешно, проверяем путь
                 if request.path in ['/login/', '/register/']:
-                    return HttpResponseRedirect('/')  # Перенаправляем на главную страницу
+                    return HttpResponseRedirect('/projects/')  # Перенаправляем на главную страницу
 
             except ExpiredSignatureError:
                 # Если пользователь уже на странице логина, не перенаправляем

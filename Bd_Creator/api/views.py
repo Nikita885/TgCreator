@@ -23,20 +23,65 @@ from rest_framework.exceptions import ValidationError
 import requests
 
 import re
+from django.views.decorators.http import require_http_methods
+
+
+def edit_category(request, project_id):
+    try:
+        
+        data = json.loads(request.body)
+        category_id = data.get('category_id')
+        category = Category.objects.get(id=category_id, project_id=project_id)
+
+        if 'name' in data:
+            category.button_name = data['name']
+        if 'message' in data:
+            category.message = data['message']
+
+        category.save()
+        return JsonResponse({'success': 'Category updated successfully'})
+
+    except Category.DoesNotExist:
+        return JsonResponse({'error': 'Category does not exist'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+
+def delete_category(request, project_id):
+    try:
+        data = json.loads(request.body)
+        category_id = data.get('category_id')
+        category = Category.objects.get(id=category_id, project_id=project_id)
+
+        category.delete()
+        return JsonResponse({'success': 'Category deleted successfully'})
+
+    except Category.DoesNotExist:
+        return JsonResponse({'error': 'Category does not exist'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 def create_category(request, project_id):
     if request.method == 'POST':
-
         try:
             data = json.loads(request.body)
+            print(data)
             button_name = data.get('button_name')
-            parent_id = data.get('parent')  # предполагается, что здесь ID родителя
+            parent_id = data.get('parent')
+            message = data.get('message')  # Получаем сообщение из запроса
 
-            if button_name:
+            if button_name and message:  # Проверяем, что оба значения присутствуют
                 parent = Category.objects.get(id=parent_id) if parent_id else None
                 project = Project.objects.get(id=project_id)
-                print(request.user)
-                category = Category.objects.create(button_name=button_name, parent=parent, project_id=project, owner_id=request.idusers)
+                
+                category = Category.objects.create(
+                    button_name=button_name,
+                    parent=parent,
+                    project_id=project,
+                    owner_id=request.user.id,  # Используем request.user.id для владельца
+                    message=message  # Сохраняем сообщение
+                )
                 category.save()
 
                 return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
@@ -56,6 +101,7 @@ def create_category(request, project_id):
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 
 def add_category(request, project_id):
@@ -130,7 +176,7 @@ class ProjectViewSet(ModelViewSet):
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Возвращать только те проекты, где текущий пользователь является владельцем
@@ -153,7 +199,7 @@ class CustomLoginView(TokenObtainPairView):
                 token = response.data['access']
                 
                 # Создаем новый ответ и сохраняем токен в куки
-                res = HttpResponseRedirect('/')
+                res = HttpResponseRedirect('projects/')
                 res.set_cookie(
                     key='access_token',
                     value=f'Bearer {token}',
@@ -171,7 +217,7 @@ class CustomLoginView(TokenObtainPairView):
         
 
 def logout_view(request):
-    response = HttpResponseRedirect('/')
+    response = HttpResponseRedirect('projects/')
     response.delete_cookie('access_token')  # Удаляем токен из куков
     return response
 

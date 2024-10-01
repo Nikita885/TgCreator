@@ -15,8 +15,7 @@
     <h1>Информация о проекте: {{ project.name }}</h1>
 
     <p><strong>Имя проекта:</strong> {{ project.name }}</p>
-    <p><strong>Telegram Token:</strong> {{ project.tg_token }}</p>
-
+    
     <!-- Форма для добавления категории -->
     <form id="add-category-form" action="{% url 'add_category' project.id %}" method="post">
         {% csrf_token %}
@@ -30,17 +29,56 @@
                 <option value="{{ category.id }}">{{ category.button_name }}</option>
             {% endfor %}
         </select>
-        
+
+        <label for="message">Сообщение категории:</label>
+        <input type="text" id="message" name="message" required>
+
         <button type="submit">Добавить категорию</button>
     </form>
-
+    
+    <!-- Секция для отображения списка категорий -->
+    <h2>Список категорий</h2>
+    <ul id="category-list">
+        {% for category in project.categories.all %}
+            {% if not category.parent %}
+                <li id="category-{{ category.id }}">
+                    <a href="#" class="category-link" onclick="toggleActions({{ category.id }})">{{ category.button_name }}</a>
+                    <p><strong>Сообщение:</strong> {{ category.message }}</p>
+                    <div class="category-actions" id="actions-{{ category.id }}" style="display: none;">
+                        <button onclick="editCategory({{ category.id }}, 'name')">Редактировать имя</button>
+                        <button onclick="editCategory({{ category.id }}, 'message')">Редактировать сообщение</button>
+                        <button onclick="deleteCategory({{ category.id }})">Удалить</button>
+                    </div>
+                    <ul>
+                        {% for subcategory in category.children.all %}
+                            <li id="category-{{ subcategory.id }}">
+                                <a href="#" class="category-link" onclick="toggleActions({{ subcategory.id }})">{{ subcategory.button_name }}</a>
+                                <p><strong>Сообщение:</strong> {{ subcategory.message }}</p>
+                                <div class="category-actions" id="actions-{{ subcategory.id }}" style="display: none;">
+                                    <button onclick="editCategory({{ subcategory.id }}, 'name')">Редактировать имя</button>
+                                    <button onclick="editCategory({{ subcategory.id }}, 'message')">Редактировать сообщение</button>
+                                    <button onclick="deleteCategory({{ subcategory.id }})">Удалить</button>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    
+    
+    
+    
+    
     <!-- Кнопка для удаления проекта -->
     <form action="{% url 'delete_project' project.id %}" method="post">
         {% csrf_token %}
         <button type="submit" onclick="return confirm('Вы уверены, что хотите удалить проект?')">Удалить проект</button>
     </form>
-
+    
     <!-- Кнопка для возврата на главную -->
     <a href="/projects/">Назад к списку проектов</a>
+    
 </body>
 </html>
