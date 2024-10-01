@@ -21,26 +21,22 @@
         </div>
         {% endif %}
 
+
         <form method="post">
             {% csrf_token %}
-            <form method="post">
-                {% csrf_token %}
-                <div>
-                    <label for="{{ form.username.id_for_label }}">Имя пользователя:</label>
-                    {{ form.username }}
-                </div>
-                <div>
-                    <label for="{{ form.password.id_for_label }}">Пароль:</label>
-                    {{ form.password }}
-                </div>
-                <div>
-                    {{ form.remember_me }} {{ form.remember_me.label }} <!-- Отображение нового поля -->
-                </div>
-                <button type="submit">Войти</button>
-            </form>
-            
+            <div>
+                {{ form.username }} <!-- Поле для ввода имени пользователя -->
+            </div>
+            <div>
+                {{ form.password }} <!-- Поле для ввода пароля -->
+            </div>
+            <div>
+                {{ form.remember_me }} {{ form.remember_me.label }} <!-- Отображение нового поля -->
+            </div>
+            <button type="submit">Войти</button>
             <p class="no-acc">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
         </form>
+
     </div>
 </body>
 </html>

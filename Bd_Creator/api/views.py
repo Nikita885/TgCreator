@@ -31,7 +31,7 @@ def login_view(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            # Логика входа
+            # Логика для входа
             pass
     else:
         form = CustomAuthenticationForm()
@@ -198,11 +198,11 @@ class CategoryViewSet(ModelViewSet):
 
 class CustomLoginView(TokenObtainPairView):
     def get(self, request, *args, **kwargs):
-        form = AuthenticationForm()
+        form = CustomAuthenticationForm()  # Используем пользовательскую форму
         return render(request, 'login.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
-        form = AuthenticationForm(request, data=request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)  # Используем пользовательскую форму
 
         if form.is_valid():
             # Получаем токен через стандартное поведение TokenObtainPairView
@@ -225,7 +225,7 @@ class CustomLoginView(TokenObtainPairView):
             else:
                 return JsonResponse({'message': 'Invalid credentials'}, status=400)
         else:
-            return render(request, 'login.html', {'form': form})
+            return render(request, 'login.html', {'form': form})  # Возвращаем форму с ошибками
         
 
 def logout_view(request):
