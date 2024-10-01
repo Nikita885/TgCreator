@@ -55,7 +55,7 @@ class CategoryIDSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), allow_null=True)
-    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), required=False)
+    
 
     class Meta:
         model = Category

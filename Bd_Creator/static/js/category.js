@@ -2,51 +2,62 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('add-category-form');
 
     form.addEventListener('submit', function (event) {
-        event.preventDefault(); // Предотвращаем стандартную отправку формы
+        event.preventDefault(); // Prevent default form submission
 
-        const buttonName = document.getElementById('button_name').value; // Получаем значение button_name
-        const parentId = document.getElementById('parent').value; // Получаем значение родительской категории
+        const buttonName = document.getElementById('button_name').value; // Get button_name from input
+        const parentId = document.getElementById('parent').value; // Get parent from select
 
         const data = {
             button_name: buttonName,
-            parent: parentId ? parentId : null  // Отправляем null, если parentId пуст
+            parent: parentId ? parentId : null  // Send null if parentId is an empty string
         };
 
-        console.log("Данные для отправки:", JSON.stringify(data)); // Отладка перед отправкой
+        console.log("Data to be sent:", JSON.stringify(data)); // Отладка перед отправкой
 
         fetch(form.action, {
             method: 'POST',
-            body: JSON.stringify(data),  // Преобразуем объект в JSON-строку
+            body: JSON.stringify(data),  // Convert to JSON string
             headers: {
-                'Content-Type': 'application/json',  // Устанавливаем заголовок Content-Type на JSON
-
+                'Content-Type': 'application/json',  // Set content type to JSON
+                'X-CSRFToken': getCookie('csrftoken') // Include the CSRF token
             }
         })
         .then(response => {
             if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Ошибка сети');
-                });
+                throw new Error('Network response was not ok');
             }
             return response.json();
         })
         .then(data => {
             if (data.success) {
-                alert(data.success); // Показываем сообщение об успехе
+                alert(data.success); // Show success message
                 const newOption = document.createElement('option');
                 newOption.value = data.category_id;
                 newOption.textContent = buttonName;
                 document.getElementById('parent').appendChild(newOption);
-                form.reset(); // Очищаем форму
+                form.reset(); // Clear the form
             } else {
-                alert(`Ошибка: ${data.error}`); // Показываем сообщение об ошибке
+                alert(`Error: ${data.error}`); // Show error message
             }
         })
         .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.');
+            console.error('Error:', error);
+            alert('An unexpected error occurred. Please try again.');
         });
     });
 
-
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 });

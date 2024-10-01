@@ -26,32 +26,37 @@ import re
 
 def create_category(request, project_id):
     if request.method == 'POST':
+
         try:
-            print(f"Raw request body: {request.body}") 
             data = json.loads(request.body)
-            print(f"Data received: {data}",2132131)  # Debug log
-
             button_name = data.get('button_name')
-            parent_id = data.get('parent')
+            parent_id = data.get('parent')  # предполагается, что здесь ID родителя
 
-            if button_name:  # Ensure button_name is present
+            if button_name:
                 parent = Category.objects.get(id=parent_id) if parent_id else None
-                category = Category.objects.create(button_name=button_name, parent=parent)
-
-                category.owners.add(request.user.id)  # Assuming you're using request.user
-
-                category.project_id = project_id
+                project = Project.objects.get(id=project_id)
+                print(request.user)
+                category = Category.objects.create(button_name=button_name, parent=parent, project_id=project, owner_id=request.idusers)
                 category.save()
 
                 return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
 
-            return JsonResponse({'error': 'Missing button_name'}, status=400)
+            return JsonResponse({'error': 'Missing data'}, status=400)
 
-        except json.JSONDecodeError as e:
-            print(f"JSON decoding failed: {e}")
-            return JsonResponse({'error': 'Ошибка обработки данных'}, status=400)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Parent category does not exist'}, status=404)
 
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+        except Project.DoesNotExist:
+            return JsonResponse({'error': 'Project does not exist'}, status=404)
+
+        except ValidationError as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 def add_category(request, project_id):
     if request.method == 'POST':
