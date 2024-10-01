@@ -39,3 +39,14 @@ class ProjectForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=True
     )
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    # Добавление нового поля, например, "remember me"
+    remember_me = forms.BooleanField(required=False, label='Запомнить меня')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавление класса CSS к полям формы
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password'].widget.attrs.update({'class': 'form-control'})

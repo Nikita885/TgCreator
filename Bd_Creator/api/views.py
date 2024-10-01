@@ -24,7 +24,19 @@ import requests
 
 import re
 from django.views.decorators.http import require_http_methods
+from .forms import CustomAuthenticationForm
 
+
+def login_view(request):
+    if request.method == 'POST':
+        form = CustomAuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            # Логика входа
+            pass
+    else:
+        form = CustomAuthenticationForm()
+    
+    return render(request, 'your_template.html', {'form': form})
 
 def edit_category(request, project_id):
     try:
