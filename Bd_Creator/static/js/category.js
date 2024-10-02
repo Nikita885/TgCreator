@@ -1,128 +1,116 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('add-category-form');
+document.addEventListener("DOMContentLoaded", () => {
+    const categoryForm = document.getElementById('add-category-form');
+    const categoryList = document.getElementById('category-list');
 
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
+    // Загрузка категорий при инициализации страницы
+    async function loadCategories() {
+        const projectInfo = document.getElementById('project-info');
+        const projectId = projectInfo.getAttribute('data-project-id'); // Получаем project_id из атрибута data
+    
+        try {
+            const response = await fetch(`/projects/${projectId}/get_category/`);
+            const data = await response.json();
+    
+            if (response.ok) {
+                const categoryList = document.getElementById('category-list');
+                categoryList.innerHTML = ''; // Очищаем список перед добавлением новых категорий
+    
+                // Создаем иерархию категорий
+                data.categorys.forEach(category => {
+                    addCategoryToList(category.id, category.button_name, category.parent, category.message);
+                });
+            } else {
+                console.error('Ошибка при загрузке категорий:', data.error);
+            }
+        } catch (error) {
+            console.error('Ошибка при запросе категорий:', error);
+        }
+    }
 
-        const buttonName = document.getElementById('button_name').value;
-        const parentId = document.getElementById('parent').value;
+    // Обработчик отправки формы
+    categoryForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Предотвращаем стандартное поведение формы
 
+        const formData = new FormData(categoryForm);
         const data = {
-            button_name: buttonName,
-            parent: parentId ? parentId : null
+            button_name: formData.get('button_name'),
+            parent: formData.get('parent') || null,
+            message: formData.get('message'),
         };
 
-        fetch(form.action, {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.success);
-                
-                const newOption = document.createElement('option');
-                newOption.value = data.category_id;
-                newOption.textContent = buttonName;
-                document.getElementById('parent').appendChild(newOption);
+        try {
+            const response = await fetch(categoryForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
-                const newCategory = document.createElement('li');
-                newCategory.id = `category-${data.category_id}`;
-
-                const categoryLink = document.createElement('a');
-                categoryLink.href = '#';
-                categoryLink.className = 'category-link';
-                categoryLink.textContent = buttonName;
-                categoryLink.onclick = function () {
-                    toggleActions(data.category_id);
-                };
-
-                newCategory.appendChild(categoryLink);
-
-                const actionDiv = document.createElement('div');
-                actionDiv.className = 'category-actions';
-                actionDiv.id = `actions-${data.category_id}`;
-                actionDiv.style.display = 'none';
-
-                const editButton = document.createElement('button');
-                editButton.textContent = 'Редактировать';
-                editButton.onclick = function () {
-                    editCategory(data.category_id);
-                };
-
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Удалить';
-                deleteButton.onclick = function () {
-                    deleteCategory(data.category_id);
-                };
-
-                actionDiv.appendChild(editButton);
-                actionDiv.appendChild(deleteButton);
-                newCategory.appendChild(actionDiv);
-
-                const categoryList = document.getElementById('category-list');
-                if (!parentId) {
-                    categoryList.appendChild(newCategory);
-                } else {
-                    let parentElement = document.getElementById(`category-${parentId}`);
-                    let childList = parentElement.querySelector('ul');
-                    if (!childList) {
-                        childList = document.createElement('ul');
-                        parentElement.appendChild(childList);
-                    }
-                    childList.appendChild(newCategory);
-                }
-
-                form.reset();
+            const result = await response.json();
+            if (response.ok) {
+                // Добавляем категорию в список
+                addCategoryToList(result.category_id, data.button_name, data.parent, data.message);
+                categoryForm.reset(); // Сброс формы
             } else {
-                alert(`Error: ${data.error}`);
+                alert(result.error || 'Произошла ошибка при добавлении категории.');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Произошла ошибка. Попробуйте еще раз.');
-        });
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении категории.');
+        }
     });
 
-    // Toggle visibility of the action menu
-    window.toggleActions = function (categoryId) {
-        const actionsDiv = document.getElementById(`actions-${categoryId}`);
-        if (actionsDiv.style.display === 'none') {
-            actionsDiv.style.display = 'block';
-        } else {
-            actionsDiv.style.display = 'none';
+    // Функция для добавления категории в список
+    function addCategoryToList(id, name, parentId, message) {
+        const categoryList = parentId
+            ? document.getElementById(`children-${parentId}`)  // Если есть родитель, ищем дочерний список
+            : document.getElementById('category-list');  // Иначе добавляем на основной уровень
+    
+        if (!categoryList) {
+            console.error(`Список для родителя ${parentId} не найден.`);
+            return; // Если родительского списка нет, ничего не делаем
         }
-    };
 
-    window.editCategory = function (categoryId) {
-        const newName = prompt("Введите новое имя категории:");
-        if (newName) {
-            document.querySelector(`#category-${categoryId} .category-link`).textContent = newName;
+        // Проверяем, нет ли уже элемента с таким ID
+        if (document.getElementById(`category-${id}`)) {
+            console.error(`Категория с ID ${id} уже существует.`);
+            return;
         }
-    };
 
-    window.deleteCategory = function (categoryId) {
-        if (confirm("Вы уверены, что хотите удалить эту категорию?")) {
-            document.getElementById(`category-${categoryId}`).remove();
-        }
-    };
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+        // Создаем элемент категории
+        const li = document.createElement('li');
+        li.id = `category-${id}`;
+    
+        // Ссылка на категорию
+        const link = document.createElement('a');
+        link.href = '#';
+        link.textContent = name;
+        link.classList.add('category-link');
+        link.dataset.categoryId = id;
+    
+        // Обработчик для сворачивания и разворачивания
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const childUl = document.getElementById(`children-${id}`);
+            if (childUl) {
+                childUl.style.display = childUl.style.display === 'none' ? 'block' : 'none';
             }
-        }
-        return cookieValue;
+        });
+    
+        li.appendChild(link);
+    
+        // Создаем дочерний ul для подкатегорий
+        const childrenUl = document.createElement('ul');
+        childrenUl.id = `children-${id}`;
+        childrenUl.classList.add('category-children');
+        childrenUl.style.display = 'none'; // По умолчанию подкатегории скрыты
+    
+        li.appendChild(childrenUl);
+        categoryList.appendChild(li);
     }
+
+    // Загружаем категории при загрузке страницы
+    loadCategories();
 });

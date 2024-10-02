@@ -13,7 +13,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
-from django.contrib.auth.forms import AuthenticationForm
+
 
 import json
 
@@ -22,21 +22,10 @@ from rest_framework.exceptions import ValidationError
 
 import requests
 
-import re
-from django.views.decorators.http import require_http_methods
 from .forms import CustomAuthenticationForm
 
 
-def login_view(request):
-    if request.method == 'POST':
-        form = CustomAuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            # Логика для входа
-            pass
-    else:
-        form = CustomAuthenticationForm()
-    
-    return render(request, 'your_template.html', {'form': form})
+
 
 def edit_category(request, project_id):
     try:
@@ -74,6 +63,33 @@ def delete_category(request, project_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Project, Category
+
+
+
+def get_user_category(request, project_id):
+    # Получаем текущего пользователя
+    user = request.idusers
+
+    # Получаем все категории, которые принадлежат текущему пользователю и проекту
+    categories = Category.objects.filter(owner=user, project_id=project_id)
+
+    category_list = [{
+        'id': category.id,
+        'button_name': category.button_name,
+        'parent': category.parent.id if category.parent else None,  # ID родительской категории
+        'project_id': category.project_id.id,  # Преобразуем объект Project в его ID
+        'message': category.message,
+        'owner': category.owner.id,  # ID владельца
+    } for category in categories]
+
+    return JsonResponse({'categorys': category_list}, safe=False)
+
+
+
+
 def create_category(request, project_id):
     if request.method == 'POST':
         try:
@@ -84,6 +100,7 @@ def create_category(request, project_id):
             message = data.get('message')  # Получаем сообщение из запроса
 
             if button_name and message:  # Проверяем, что оба значения присутствуют
+                
                 parent = Category.objects.get(id=parent_id) if parent_id else None
                 project = Project.objects.get(id=project_id)
                 
@@ -94,8 +111,9 @@ def create_category(request, project_id):
                     owner_id=request.user.id,  # Используем request.user.id для владельца
                     message=message  # Сохраняем сообщение
                 )
+                print(category)
                 category.save()
-
+                
                 return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
 
             return JsonResponse({'error': 'Missing data'}, status=400)
