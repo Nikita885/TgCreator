@@ -49,22 +49,27 @@ h2 {
 }
 
 input {
-    background-color: transparent;
-    color: white;
-    border: none;
+    background-color: #0b570bef;
+    color: rgb(194, 194, 194);
+    border: 2px solid rgba(211, 211, 211, 0.5); 
+    border-radius: 20px; 
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     outline: none;
-    padding: 5px;
-    width: 100%;
-    margin-bottom: 20px;
-    font-size: 16px;
-    text-align: center;
+        padding: 5px;
+        width: 100%;
+        margin-bottom: 20px;
+        font-size: 16px;
+        text-align: center;
 }   
 
 input::placeholder {
     color: rgba(255, 255, 255, 0.7);    
 }
-
+input:-webkit-autofill {
+    -webkit-text-fill-color: white !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0b570bef inset !important; 
+    transition: background-color 5000s ease-in-out 0s; 
+}
 button {
     align-self: center;
     color: rgb(245, 243, 243);

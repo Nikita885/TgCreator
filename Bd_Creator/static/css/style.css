@@ -39,7 +39,7 @@ h2 {
 .error-message {
     
     color: red;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     text-align: left; 
     height: 40px; 
     display: flex;
@@ -55,19 +55,24 @@ h2 {
 }
 
 input {
-    background-color: transparent;
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.5); /* Добавляем обводку */
-    border-radius: 20px; /* Устанавливаем радиус закругления для полей ввода */
+    background-color: #0b570bef;
+    color: rgb(194, 194, 194);
+    border: 2px solid rgba(211, 211, 211, 0.5); 
+    border-radius: 20px; 
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     outline: none;
     padding: 5px;
-    width: 100%;
+    width: 81%;
     margin-bottom: 20px;
+    margin-left: 29px;
     font-size: 16px;
     text-align: center;
 }   
-
+input:-webkit-autofill {
+    -webkit-text-fill-color: white !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0b570bef inset !important; 
+    transition: background-color 5000s ease-in-out 0s; 
+}
 input::placeholder {
     color: rgba(255, 255, 255, 0.7);    
 }
