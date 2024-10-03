@@ -1,0 +1,172 @@
+body {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgb(0, 0, 0));
+    color: white;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центрируем содержимое по вертикали */
+    align-items: center;
+    height: 100vh; /* Высота окна */
+    margin: 0;
+    overflow: hidden;
+}
+
+.header-content {
+    position: absolute; /* Изменяем на absolute */
+    top: 10px; /* Располагаем вверху */
+    left: 50%; /* Центрируем по горизонтали */
+    transform: translateX(-50%); /* Центрируем относительно своей ширины */
+}
+
+.logo {
+    font-size: 24px;
+}
+
+.links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0; /* Убираем margin */
+    display: flex;
+    gap: 20px;
+}
+
+.links ul li {
+    display: inline;
+}
+
+.links ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.links ul li a:hover {
+    color: lightgray;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-13px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 20px;
+    text-align: left;
+    height: 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: 2px;
+}
+
+.exit {
+    color: rgb(245, 243, 243);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100px;
+    background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
+    border-radius: 25px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+    position: fixed;
+    top: 60%;
+    left: 52%;
+    transform: translate(-50%, -50%); 
+}
+
+#project-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(30, 30, 30, 0.9);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+#submit-project {
+    margin-left: 50px;
+    margin-top: 20px; 
+    width: 80%;
+    padding: 12px 15px; 
+    background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
+    color: rgb(245, 243, 243);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+
+
+button {
+    color: rgb(245, 243, 243);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    display: block;
+    width: 100px;
+    background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
+    border-radius: 25px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
+    transition: background-color 0.3s; 
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: lightgray; 
+}
+
+
+#add-project-button:hover {
+    background-color: lightgray; 
+    
+}
+
+.footer {
+    position: fixed; 
+    bottom: 320px;
+    left: 50%; 
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+#add-project-button {
+    position: fixed;
+    top: 60%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    color: rgb(245, 243, 243);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100px;
+    background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
+    border-radius: 25px; 
+    padding: 10px 20px; 
+    box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
+    transition: background-color 0.3s; 
+    z-index: 1000;
+}
+
+#add-project-button:hover {
+    background-color: lightgray;
+}

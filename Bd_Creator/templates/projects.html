@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styleprojects.css' %}">
     <title>Заголовок страницы</title>
 </head>
 <body>
-    <div class="header">
+    <header>
         <div class="header-content">
             <div class="links">
                 <ul>
-                    <li><a>projects</a></li>
-                    <li><a>profile</a></li>
+                    <li><a href="#">projects</a></li>
+                    <li><a href="#">profile</a></li>
                 </ul>
             </div>
             <div class="logo">ADMIN PANEL</div>
         </div>
-    </div>
+    </header>
 
     <form action="{% url 'logout' %}" method="post" id="logout-form">
         {% csrf_token %}
-        <button type="submit">Выыход</button>
+        <button type="submit" class="exit">Выход</button>
     </form>
 
     <div id="project-list">
@@ -41,9 +41,8 @@
         <button id="submit-project">Создать проект</button>
     </div>
 
-    <div class="footer">
-        <button class="buttonfoot" id="add-project-button">+</button>
-    </div>
+    <button class="buttonfoot" id="add-project-button">+</button>
+
     <!-- Подключение JavaScript файла -->
     <script src="{% static 'js/project.js' %}"></script>
 </body>
