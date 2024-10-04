@@ -43,7 +43,7 @@
         {% for category in project.categories.all %}
             {% if not category.parent %}
                 <li id="category-{{ category.id }}">
-                    <span class="toggle-children" style="cursor: pointer;">▶</span>
+                    <span class="toggle-children" style="cursor: pointer;"></span>
                     <a href="#" class="category-link" data-category-id="{{ category.id }}">{{ category.button_name }}</a>
                     <ul id="children-{{ category.id }}" class="category-children hidden">
                         {% for subcategory in category.children.all %}
@@ -65,5 +65,22 @@
     
     <!-- Кнопка для возврата на главную -->
     <a href="/projects/">Назад к списку проектов</a>
+    <!-- Поля для редактирования категории -->
+    <!-- Поля для редактирования категории -->
+    <h3>Редактировать категорию</h3>
+    <form id="edit-category-form">
+        <label for="edit-button-name">Название кнопки:</label>
+        <input type="text" id="edit-button-name" name="button_name">
+
+        <label for="edit-message">Сообщение:</label>
+        <input type="text" id="edit-message" name="message">
+
+        <input type="hidden" id="edit-category-id"> <!-- Скрытое поле для хранения ID редактируемой категории -->
+
+        <!-- Кнопка сохранить, которая будет скрыта по умолчанию -->
+        <button type="button" id="save-category-btn" style="display: none;">Сохранить</button>
+    </form>
+
+
 </body>
 </html>

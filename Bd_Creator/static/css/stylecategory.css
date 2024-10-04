@@ -14,3 +14,13 @@
 .hidden {
     display: none;
 }
+#category-list,
+.category-children {
+    list-style-type: none; /* Убираем маркеры */
+    padding: 0;            /* Убираем отступы */
+    margin: 0;             /* Убираем внешние отступы */
+}
+
+.category-children {
+    padding-left: 20px; /* Добавляем отступ слева для дочерних категорий */
+}

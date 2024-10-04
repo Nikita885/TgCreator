@@ -27,25 +27,24 @@ from .forms import CustomAuthenticationForm
 
 
 
-def edit_category(request, project_id):
-    try:
-        
-        data = json.loads(request.body)
-        category_id = data.get('category_id')
-        category = Category.objects.get(id=category_id, project_id=project_id)
+def edit_category(request, category_id):
+    if request.method == 'POST':
+        try:
+            category = get_object_or_404(Category, id=category_id)
+            data = json.loads(request.body)
 
-        if 'name' in data:
-            category.button_name = data['name']
-        if 'message' in data:
-            category.message = data['message']
+            # Обновляем поля категории
+            category.button_name = data.get('button_name', category.button_name)
+            category.message = data.get('message', category.message)
 
-        category.save()
-        return JsonResponse({'success': 'Category updated successfully'})
+            # Сохраняем изменения
+            category.save()
 
-    except Category.DoesNotExist:
-        return JsonResponse({'error': 'Category does not exist'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'success': True, 'message': 'Категория обновлена успешно.'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Неверный метод запроса'}, status=405)
 
 
 
@@ -73,14 +72,19 @@ def get_user_category(request, project_id):
     # Получаем все категории, которые принадлежат текущему пользователю и проекту
     categories = Category.objects.filter(owner=user, project_id=project_id)
 
-    category_list = [{
+    # Создаем словарь для хранения категорий по их ID
+    category_dict = {category.id: {
         'id': category.id,
         'button_name': category.button_name,
-        'parent': category.parent.id if category.parent else None,  # ID родительской категории
-        'project_id': category.project_id.id,  # Преобразуем объект Project в его ID
+        'parent': category.parent.id if category.parent else None,
+        'project_id': category.project_id.id,
         'message': category.message,
-        'owner': category.owner.id,  # ID владельца
-    } for category in categories]
+        'owner': category.owner.id,
+        'children': list(category.children.values('id', 'button_name', 'message')),  # Получаем подкатегории
+    } for category in categories}
+
+    # Получаем список категорий
+    category_list = list(category_dict.values())
 
     return JsonResponse({'categorys': category_list}, safe=False)
 

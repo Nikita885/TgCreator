@@ -16,7 +16,7 @@ urlpatterns = [
     path('delete_project/<int:project_id>/', delete_project, name='delete_project'),  # URL для удаления проекта
     path('projects/<int:project_id>/', project_detail, name='project_detail'),  # Новый маршрут для страницы проекта
     path('projects/<int:project_id>/add_category/', create_category, name='add_category'),
-    path('projects/<int:project_id>/edit_category', edit_category, name='edit_category'),
+    path('categories/<int:category_id>/edit/', edit_category, name='edit_category'),
     path('projects/<int:project_id>/delete_category', delete_category, name='delete_category'),
     path('projects/<int:project_id>/get_category/', get_user_category, name='get_category'),
 ]
