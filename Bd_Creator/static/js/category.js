@@ -6,15 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadCategories() {
         const projectInfo = document.getElementById('project-info');
         const projectId = projectInfo.getAttribute('data-project-id'); // Получаем project_id из атрибута data
-    
+
         try {
             const response = await fetch(`/projects/${projectId}/get_category/`);
             const data = await response.json();
-    
+
             if (response.ok) {
-                const categoryList = document.getElementById('category-list');
                 categoryList.innerHTML = ''; // Очищаем список перед добавлением новых категорий
-    
+
                 // Создаем иерархию категорий
                 data.categorys.forEach(category => {
                     addCategoryToList(category.id, category.button_name, category.parent, category.message);
@@ -67,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const categoryList = parentId
             ? document.getElementById(`children-${parentId}`)  // Если есть родитель, ищем дочерний список
             : document.getElementById('category-list');  // Иначе добавляем на основной уровень
-    
+
         if (!categoryList) {
             console.error(`Список для родителя ${parentId} не найден.`);
             return; // Если родительского списка нет, ничего не делаем
@@ -82,31 +81,30 @@ document.addEventListener("DOMContentLoaded", () => {
         // Создаем элемент категории
         const li = document.createElement('li');
         li.id = `category-${id}`;
-    
+
         // Ссылка на категорию
         const link = document.createElement('a');
         link.href = '#';
         link.textContent = name;
         link.classList.add('category-link');
         link.dataset.categoryId = id;
-    
+
         // Обработчик для сворачивания и разворачивания
         link.addEventListener('click', function(event) {
             event.preventDefault();
             const childUl = document.getElementById(`children-${id}`);
             if (childUl) {
-                childUl.style.display = childUl.style.display === 'none' ? 'block' : 'none';
+                childUl.classList.toggle('hidden'); // Переключаем видимость
             }
         });
-    
+
         li.appendChild(link);
-    
+
         // Создаем дочерний ul для подкатегорий
         const childrenUl = document.createElement('ul');
         childrenUl.id = `children-${id}`;
-        childrenUl.classList.add('category-children');
-        childrenUl.style.display = 'none'; // По умолчанию подкатегории скрыты
-    
+        childrenUl.classList.add('category-children', 'hidden'); // По умолчанию подкатегории скрыты
+
         li.appendChild(childrenUl);
         categoryList.appendChild(li);
     }
