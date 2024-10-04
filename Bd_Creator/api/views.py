@@ -265,8 +265,7 @@ def create_project(request):
 
         if name and tg_token:
             # Проверка валидности токена Telegram
-            if not is_valid_telegram_token(tg_token):
-                return JsonResponse({'error': 'Invalid Telegram token'}, status=400)
+
             
             # Проверка, существует ли токен в базе данных
             if Project.objects.filter(tg_token=tg_token).exists():
