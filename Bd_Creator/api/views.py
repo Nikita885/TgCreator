@@ -263,11 +263,12 @@ def create_project(request):
         
         name = data.get('name')
         tg_token = data.get('tg_token')
-
+        print(data)
         if name and tg_token:
             # Проверка валидности токена Telegram
+            if not is_valid_telegram_token(tg_token):
+                return JsonResponse({'error': 'Invalid Telegram token'}, status=400)
 
-            
             # Проверка, существует ли токен в базе данных
             if Project.objects.filter(tg_token=tg_token).exists():
                 return JsonResponse({'error': 'This Telegram token already exists'}, status=400)
@@ -282,12 +283,19 @@ def create_project(request):
         return JsonResponse({'error': 'Missing data'}, status=400)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
 def get_projects(request):
     # Получаем текущего пользователя
     user = request.idusers
 
     projects = Project.objects.filter(owners=user)
+    
+    project_list = [{'id': project.id, 'name': project.name} for project in projects]
+    return JsonResponse({'projects': project_list}, safe=False)
+
+
+def get_projects_for_bot(request):
+    # Получаем все проекты
+    projects = Project.objects.all()
     
     project_list = [{'id': project.id, 'name': project.name} for project in projects]
     return JsonResponse({'projects': project_list}, safe=False)
