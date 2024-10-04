@@ -63,9 +63,6 @@ def delete_category(request, project_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from .models import Project, Category
 
 
 
@@ -108,7 +105,7 @@ def create_category(request, project_id):
                     button_name=button_name,
                     parent=parent,
                     project_id=project,
-                    owner_id=request.user.id,  # Используем request.user.id для владельца
+                    owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
                     message=message  # Сохраняем сообщение
                 )
                 print(category)
@@ -155,7 +152,7 @@ def add_category(request, project_id):
             'parent': data.get('parent'),  # если это ID родительской категории
             'message': data.get('message'),
             'project_id': project.id,  # Добавляем project_id
-            'owner': request.user.id  # Устанавливаем владельца
+            'owner': request.user  # Устанавливаем владельца
         }
 
         # Создание категории

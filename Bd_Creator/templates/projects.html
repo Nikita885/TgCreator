@@ -15,6 +15,11 @@
                 <ul>
                     <li><a href="#">projects</a></li>
                     <li><a href="#">profile</a></li>
+                    
+                    
+                        
+                    <li><a method="post" id="logout-form" href="{% url 'logout' %} "type="submit" class="exit">exit</a></li>
+                    {% csrf_token %}
                 </ul>
             </div>
             <div class="logo">ADMIN PANEL</div>
@@ -23,25 +28,26 @@
 
     <form action="{% url 'logout' %}" method="post" id="logout-form">
         {% csrf_token %}
-        <button type="submit" class="exit">Выход</button>
+        
     </form>
 
     <div id="project-list">
+        <button class="buttonfoot" id="add-project-button">+</button>
         <!-- Здесь будут динамически добавляться проекты -->
     </div>
 
     <!-- Форма для создания проекта, по умолчанию скрыта -->
     <div id="project-form" style="display: none;">
-        <label for="project-name">Имя проекта:</label>
+        
         <input type="text" id="project-name" name="name" placeholder="Введите имя проекта">
 
-        <label for="tg-token">TG Token:</label>
+        
         <input type="text" id="tg-token" name="tg_token" placeholder="Введите TG токен">
 
         <button id="submit-project">Создать проект</button>
     </div>
 
-    <button class="buttonfoot" id="add-project-button">+</button>
+    
 
     <!-- Подключение JavaScript файла -->
     <script src="{% static 'js/project.js' %}"></script>
