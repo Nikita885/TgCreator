@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Создаем иерархию категорий
                 data.categorys.forEach(category => {
-                    console.log(`Category: ${category.button_name}, Has Children: ${category.children.length > 0}`); // Отладочный вывод
                     addCategoryToList(category.id, category.button_name, category.parent, category.message, category.children);
                 });
             } else {
@@ -70,7 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Функция для добавления категории в список
-
     function addCategoryToList(id, name, parentId, message, children) {
         const categoryList = parentId
             ? document.getElementById(`children-${parentId}`)
@@ -81,8 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
     
-        if (document.getElementById(`category-${id}`)) {
-            console.error(`Категория с ID ${id} уже существует.`);
+        const existingCategory = document.getElementById(`category-${id}`);
+        if (existingCategory) {
+            // Если категория существует, обновляем ее данные
+            existingCategory.querySelector('.category-link').textContent = name;
             return;
         }
     
@@ -91,20 +91,19 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Создаем элемент для разворачивания/сворачивания
         const toggleLink = document.createElement('span');
-        toggleLink.textContent = children.length > 0 ? `+ ` : `- `; // Знак + или -
-        toggleLink.classList.add('toggle-link'); // Добавляем класс для стилей
-        toggleLink.style.cursor = 'pointer'; // Устанавливаем указатель курсора
+        toggleLink.textContent = children.length > 0 ? `+ ` : `- `;
+        toggleLink.classList.add('toggle-link');
+        toggleLink.style.cursor = 'pointer';
     
-        // Обработчик для сворачивания и разворачивания категорий
         toggleLink.addEventListener('click', function (event) {
-            event.stopPropagation(); // Останавливаем всплытие события
+            event.stopPropagation();
             const childUl = document.getElementById(`children-${id}`);
     
-            if (children.length > 0) { // Проверяем, есть ли дочерние элементы
+            if (children.length > 0) {
                 if (childUl) {
                     childUl.classList.toggle('hidden');
                     const isHidden = childUl.classList.contains('hidden');
-                    toggleLink.textContent = isHidden ? `+ ` : `- `; // Меняем знак
+                    toggleLink.textContent = isHidden ? `+ ` : `- `;
                 }
             }
         });
@@ -112,28 +111,23 @@ document.addEventListener("DOMContentLoaded", () => {
         // Создаем текст для категории
         const categoryName = document.createElement('span');
         categoryName.textContent = name;
-        categoryName.style.cursor = 'pointer'; // Устанавливаем указатель курсора
+        categoryName.style.cursor = 'pointer';
     
-        // Обработчик для клика по категории
         categoryName.addEventListener('click', function () {
-            // Заполняем поля редактирования
             editButtonName.value = name;
             editMessage.value = message;
             editCategoryId.value = id;
-    
-            saveCategoryBtn.style.display = 'block'; // Показываем кнопку сохранения
+            parentSelect.value = id;
+            saveCategoryBtn.style.display = 'block';
         });
     
-        // Добавляем элементы в список
         li.appendChild(toggleLink);
         li.appendChild(categoryName);
     
-        // Создаем список дочерних категорий
         const childrenUl = document.createElement('ul');
         childrenUl.id = `children-${id}`;
         childrenUl.classList.add('category-children', 'hidden');
     
-        // Добавляем дочерние категории, если они есть
         children.forEach(child => {
             addCategoryToList(child.id, child.button_name, id, child.message, child.children);
         });
@@ -141,9 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
         li.appendChild(childrenUl);
         categoryList.appendChild(li);
     }
-
-
-
 
     // Функция для обновления выпадающего списка родительских категорий
     function updateParentDropdown(id, name) {
@@ -159,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
             saveCategoryBtn.style.display = 'block';
         });
     });
+    
 
     // Обработчик для сохранения изменений категории
     saveCategoryBtn.addEventListener('click', async () => {
@@ -185,11 +177,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert('Категория успешно обновлена.');
 
                 saveCategoryBtn.style.display = 'none';
-
-                const categoryLink = document.querySelector(`a[data-category-id='${categoryId}']`);
+                const parentOption = parentSelect.querySelector(`option[value='${categoryId}']`);
+                if (parentOption) {
+                    parentOption.textContent = updatedData.button_name;
+                }
+                // Обновляем категорию на странице
+                const categoryLink = document.querySelector(`#category-${categoryId} span:nth-child(2)`);
                 if (categoryLink) {
                     categoryLink.textContent = updatedData.button_name;
-                    categoryLink.dataset.message = updatedData.message;
                 }
             } else {
                 console.error('Ошибка при сохранении данных:', resultText);
