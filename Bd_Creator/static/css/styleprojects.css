@@ -89,6 +89,7 @@ a:hover {
 }
 
 button {
+    font-family: "Noto Sans", sans-serif;
     color: rgb(245, 243, 243);
     border: none;
     cursor: pointer;

@@ -30,11 +30,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Показываем/скрываем форму для создания проекта
+// Показываем/скрываем форму для создания проекта и меняем текст кнопки
 document.getElementById('add-project-button').addEventListener('click', function() {
     const projectForm = document.getElementById('project-form');
-    projectForm.style.display = projectForm.style.display === 'none' ? 'block' : 'none';
+    const toggleButton = document.getElementById('add-project-button');
+
+    if (projectForm.style.display === 'none' || projectForm.style.display === '') {
+        projectForm.style.display = 'block';
+        toggleButton.textContent = '-';
+    } else {
+        projectForm.style.display = 'none';
+        toggleButton.textContent = '+';
+    }
 });
+
 
 // Обработка отправки формы для создания проекта
 document.getElementById('submit-project').addEventListener('click', function(event) {
