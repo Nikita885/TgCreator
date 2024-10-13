@@ -1,9 +1,10 @@
 from django.urls import path, include
 
-from .views import UserViewSet, ProjectViewSet, CategoryViewSet, CustomLoginView, register, get_projects_for_bot
+from .views import UserViewSet, ProjectViewSet, CategoryViewSet, CustomLoginView, register, get_projects_for_bot,delete_category
 
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView
+
 
 
 router = DefaultRouter()
@@ -16,5 +17,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('get_projects_for_bot/', get_projects_for_bot, name='get_projects_for_bot'),
-
+    path('categories/<int:category_id>/delete/', delete_category, name='delete_category'),
 ]

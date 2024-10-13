@@ -34,39 +34,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Обработчик отправки формы
-    categoryForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+    // Обработчик отправки формы
+categoryForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-        const formData = new FormData(categoryForm);
-        const data = {
-            button_name: formData.get('button_name'),
-            parent: formData.get('parent') || null,
-            message: formData.get('message'),
-        };
+    const formData = new FormData(categoryForm);
+    const data = {
+        button_name: formData.get('button_name'),
+        parent: formData.get('parent') || null,
+        message: formData.get('message'),
+    };
 
-        try {
-            const response = await fetch(categoryForm.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
+    try {
+        const response = await fetch(categoryForm.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
 
-            const result = await response.json();
-            if (response.ok) {
-                addCategoryToList(result.category_id, data.button_name, data.parent, data.message, result.children || []);
-                updateParentDropdown(result.category_id, data.button_name);
-                categoryForm.reset();
-            } else {
-                alert(result.error || 'Произошла ошибка при добавлении категории.');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении категории.');
+        const result = await response.json();
+        if (response.ok) {
+            // После успешного добавления категории
+            addCategoryToList(result.category_id, data.button_name, data.parent, data.message, result.children || []);
+            updateParentDropdown(result.category_id, data.button_name);
+            categoryForm.reset();
+            // Перезагрузка страницы
+            location.reload(); // добавлено
+        } else {
+            alert(result.error || 'Произошла ошибка при добавлении категории.');
         }
-    });
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при добавлении категории.');
+    }
+});
+
 
     // Функция для добавления категории в список
     function addCategoryToList(id, name, parentId, message, children) {
@@ -91,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Создаем элемент для разворачивания/сворачивания
         const toggleLink = document.createElement('span');
-        toggleLink.textContent = children.length > 0 ? `+ ` : `- `;
+        toggleLink.textContent = children.length > 0 ? `▶ ` : ``;
         toggleLink.classList.add('toggle-link');
         toggleLink.style.cursor = 'pointer';
     
@@ -103,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (childUl) {
                     childUl.classList.toggle('hidden');
                     const isHidden = childUl.classList.contains('hidden');
-                    toggleLink.textContent = isHidden ? `+ ` : `- `;
+                    toggleLink.textContent = isHidden ? `▶ ` : `▼ `;
                 }
             }
         });
@@ -174,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 const result = JSON.parse(resultText);
-                alert('Категория успешно обновлена.');
+                
 
                 saveCategoryBtn.style.display = 'none';
                 const parentOption = parentSelect.querySelector(`option[value='${categoryId}']`);

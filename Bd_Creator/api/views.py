@@ -9,7 +9,7 @@ from .forms import RegistrationForm
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from .forms import CustomRegistrationForm
 
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
@@ -25,7 +25,22 @@ import requests
 from .forms import CustomAuthenticationForm
 
 
+from django.views.decorators.csrf import csrf_exempt
 
+
+@csrf_exempt
+def delete_category(request, category_id):
+    if request.method == 'DELETE':
+        category = get_object_or_404(Category, id=category_id)
+        category.delete()
+        
+        # Проверка, действительно ли категория удалена
+        if not Category.objects.filter(id=category_id).exists():
+            return JsonResponse({'message': 'Категория успешно удалена.'}, status=200)
+        else:
+            return JsonResponse({'error': 'Ошибка при удалении категории.'}, status=500)
+
+    return JsonResponse({'error': 'Метод не разрешен.'}, status=405)
 
 def edit_category(request, category_id):
     if request.method == 'POST':
@@ -168,15 +183,13 @@ def add_category(request, project_id):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 def register(request):
-    #print(1)
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
+        form = CustomRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)  # Вход сразу после регистрации
-            return redirect('login')  # Перенаправление на страницу входа
+            form.save()
+            return redirect('login')
     else:
-        form = RegistrationForm()
+        form = CustomRegistrationForm()
     return render(request, 'register.html', {'form': form})
     
 def home_view(request):
