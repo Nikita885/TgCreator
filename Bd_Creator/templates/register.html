@@ -13,27 +13,52 @@
     <!--{{ form.email }}-->
     <div class="register-container">
         <h2>Регистрация</h2>
-        
-        {% if form.non_field_errors %}
-        <div class="error-message">
-            {{ form.non_field_errors }}
-        </div>
-        {% endif %}
     
-        <form method="POST">
+        <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            
-            {% for field in form %}
-                {% for error in field.errors %}
-                <div class="error-message">{{ error }}</div>
-                {% endfor %}
-            {% endfor %}
+    
+            <!-- Поле для ввода имени пользователя -->
+            <div>
+                {{ form.username }} <!-- Само поле без метки -->
+            </div>
+    
+            <!-- Поле для ввода email -->
+            <div>
+                {{ form.email }} <!-- Само поле без метки -->
+            </div>
+    
+            <!-- Поле для ввода пароля -->
+            <div>
+                {{ form.password1 }} <!-- Само поле без метки -->
+            </div>
+    
+            <!-- Поле для подтверждения пароля -->
+            <div>
+                {{ form.password2 }} <!-- Само поле без метки -->
+            </div>
+    
+            <!-- Отображение всех ошибок формы после всех полей ввода -->
+            {% if form.errors %}
+            <div class="error-message">
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
     
             <button type="submit">Зарегистрироваться</button>
-            <p class="no-acc">Уже есть аккаунт? <br>
-                <a href="{% url 'login' %}">Войти</a></p>
+            <p class="no-acc">Есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
         </form>
     </div>
+    
+    
+    
 </body>
 </html>
