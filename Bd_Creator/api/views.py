@@ -28,7 +28,7 @@ from .forms import CustomAuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 
 
-@csrf_exempt
+"""@csrf_exempt
 def delete_category(request, category_id):
     if request.method == 'DELETE':
         category = get_object_or_404(Category, id=category_id)
@@ -41,6 +41,21 @@ def delete_category(request, category_id):
             return JsonResponse({'error': 'Ошибка при удалении категории.'}, status=500)
 
     return JsonResponse({'error': 'Метод не разрешен.'}, status=405)
+
+
+def delete_category(request, project_id):
+    try:
+        data = json.loads(request.body)
+        category_id = data.get('category_id')
+        category = Category.objects.get(id=category_id, project_id=project_id)
+
+        category.delete()
+        return JsonResponse({'success': 'Category deleted successfully'})
+
+    except Category.DoesNotExist:
+        return JsonResponse({'error': 'Category does not exist'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)"""
 
 def edit_category(request, category_id):
     if request.method == 'POST':
@@ -62,20 +77,28 @@ def edit_category(request, category_id):
     return JsonResponse({'error': 'Неверный метод запроса'}, status=405)
 
 
+def delete_category_with_children(request, category_id):
+    if request.method == 'POST':
+        
+        try:
+            
+            category = Category.objects.get(id=category_id)
+            print(category)
+            delete_children(category)  # Удаляет все дочерние категории
+            category.delete()
+            return JsonResponse({"success": True, "message": "Категория и все её подкатегории удалены"}, status=200)
+        except Category.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Категория не найдена"}, status=404)
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+    else:
+        print(1)
+        return JsonResponse({"success": False, "message": "Неподдерживаемый метод запроса"}, status=405)
 
-def delete_category(request, project_id):
-    try:
-        data = json.loads(request.body)
-        category_id = data.get('category_id')
-        category = Category.objects.get(id=category_id, project_id=project_id)
-
-        category.delete()
-        return JsonResponse({'success': 'Category deleted successfully'})
-
-    except Category.DoesNotExist:
-        return JsonResponse({'error': 'Category does not exist'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+def delete_children(category):
+    for child in category.children.all():
+        delete_children(child)
+        child.delete()
 
 
 
@@ -86,7 +109,7 @@ def get_user_category(request, project_id):
 
     # Получаем все категории, которые принадлежат текущему пользователю и проекту
     categories = Category.objects.filter(owner=user, project_id=project_id)
-
+    print(categories)
     # Создаем словарь для хранения категорий по их ID
     category_dict = {category.id: {
         'id': category.id,

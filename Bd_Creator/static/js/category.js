@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const editMessage = document.getElementById('edit-message');
     const editCategoryId = document.getElementById('edit-category-id');
     const saveCategoryBtn = document.getElementById('save-category-btn');
+    const deleteCategoryBtn = document.querySelector('.delete-category-btn');
 
     // Загрузка категорий при инициализации страницы
     async function loadCategories() {
@@ -20,8 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 categoryList.innerHTML = '';
-
-                // Создаем иерархию категорий
                 data.categorys.forEach(category => {
                     addCategoryToList(category.id, category.button_name, category.parent, category.message, category.children);
                 });
@@ -34,44 +33,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Обработчик отправки формы
-    // Обработчик отправки формы
-categoryForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+    categoryForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-    const formData = new FormData(categoryForm);
-    const data = {
-        button_name: formData.get('button_name'),
-        parent: formData.get('parent') || null,
-        message: formData.get('message'),
-    };
+        const formData = new FormData(categoryForm);
+        const data = {
+            button_name: formData.get('button_name'),
+            parent: formData.get('parent') || null,
+            message: formData.get('message'),
+        };
 
-    try {
-        const response = await fetch(categoryForm.action, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
+        try {
+            const response = await fetch(categoryForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
-        const result = await response.json();
-        if (response.ok) {
-            // После успешного добавления категории
-            addCategoryToList(result.category_id, data.button_name, data.parent, data.message, result.children || []);
-            updateParentDropdown(result.category_id, data.button_name);
-            categoryForm.reset();
-            // Перезагрузка страницы
-            location.reload(); // добавлено
-        } else {
-            alert(result.error || 'Произошла ошибка при добавлении категории.');
+            const result = await response.json();
+            if (response.ok) {
+                addCategoryToList(result.category_id, data.button_name, data.parent, data.message, result.children || []);
+                updateParentDropdown(result.category_id, data.button_name);
+                categoryForm.reset();
+            } else {
+                alert(result.error || 'Произошла ошибка при добавлении категории.');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении категории.');
         }
-    } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Произошла ошибка при добавлении категории.');
-    }
-});
-
+    });
 
     // Функция для добавления категории в список
     function addCategoryToList(id, name, parentId, message, children) {
@@ -86,15 +80,14 @@ categoryForm.addEventListener('submit', async (event) => {
     
         const existingCategory = document.getElementById(`category-${id}`);
         if (existingCategory) {
-            // Если категория существует, обновляем ее данные
             existingCategory.querySelector('.category-link').textContent = name;
+            existingCategory.querySelector('.category-link').dataset.categoryMessage = message; // обновляем данные
             return;
         }
     
         const li = document.createElement('li');
         li.id = `category-${id}`;
     
-        // Создаем элемент для разворачивания/сворачивания
         const toggleLink = document.createElement('span');
         toggleLink.textContent = children.length > 0 ? `▶ ` : ``;
         toggleLink.classList.add('toggle-link');
@@ -104,26 +97,27 @@ categoryForm.addEventListener('submit', async (event) => {
             event.stopPropagation();
             const childUl = document.getElementById(`children-${id}`);
     
-            if (children.length > 0) {
-                if (childUl) {
-                    childUl.classList.toggle('hidden');
-                    const isHidden = childUl.classList.contains('hidden');
-                    toggleLink.textContent = isHidden ? `▶ ` : `▼ `;
-                }
+            if (childUl) {
+                childUl.classList.toggle('hidden');
+                const isHidden = childUl.classList.contains('hidden');
+                toggleLink.textContent = isHidden ? `▶ ` : `▼ `;
             }
         });
     
-        // Создаем текст для категории
         const categoryName = document.createElement('span');
         categoryName.textContent = name;
+        categoryName.classList.add('category-link');
+        categoryName.dataset.categoryId = id;
+        categoryName.dataset.categoryMessage = message; // сохраняем сообщение для динамического обновления
         categoryName.style.cursor = 'pointer';
     
         categoryName.addEventListener('click', function () {
-            editButtonName.value = name;
-            editMessage.value = message;
+            editButtonName.value = categoryName.textContent;
+            editMessage.value = categoryName.dataset.categoryMessage;
             editCategoryId.value = id;
             parentSelect.value = id;
             saveCategoryBtn.style.display = 'block';
+            deleteCategoryBtn.style.display = 'block';
         });
     
         li.appendChild(toggleLink);
@@ -132,15 +126,18 @@ categoryForm.addEventListener('submit', async (event) => {
         const childrenUl = document.createElement('ul');
         childrenUl.id = `children-${id}`;
         childrenUl.classList.add('category-children', 'hidden');
-    
-        children.forEach(child => {
-            addCategoryToList(child.id, child.button_name, id, child.message, child.children);
-        });
-    
         li.appendChild(childrenUl);
+    
         categoryList.appendChild(li);
+    
+        if (parentId) {
+            const parentToggleLink = document.querySelector(`#category-${parentId} .toggle-link`);
+            if (parentToggleLink) {
+                parentToggleLink.textContent = `▶ `;
+            }
+        }
     }
-
+    
     // Функция для обновления выпадающего списка родительских категорий
     function updateParentDropdown(id, name) {
         const option = document.createElement('option');
@@ -149,15 +146,68 @@ categoryForm.addEventListener('submit', async (event) => {
         parentSelect.appendChild(option);
     }
 
-    // Показываем кнопку "Сохранить" при изменении данных в полях
-    [editButtonName, editMessage].forEach(inputField => {
-        inputField.addEventListener('input', () => {
-            saveCategoryBtn.style.display = 'block';
-        });
-    });
-    
+    // Удаление категории и дочерних элементов
+    async function deleteCategory() {
+        const categoryId = editCategoryId.value;
 
-    // Обработчик для сохранения изменений категории
+        try {
+            const response = await fetch(`/categories/${categoryId}/delete_category_with_children/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                removeCategoryAndChildrenFromDOM(categoryId);
+                removeCategoryFromDropdown(categoryId);
+
+                // Очистка полей и скрытие кнопок
+                editButtonName.value = '';
+                editMessage.value = '';
+                editCategoryId.value = '';
+                saveCategoryBtn.style.display = 'none';
+                deleteCategoryBtn.style.display = 'none';
+
+                alert(result.message || 'Категория успешно удалена.');
+            } else {
+                alert(result.message || 'Ошибка при удалении категории.');
+            }
+        } catch (error) {
+            console.error('Ошибка при удалении категории:', error);
+            alert('Произошла ошибка при удалении категории.');
+        }
+    }
+
+    // Удаление категории и всех дочерних элементов из DOM
+    function removeCategoryAndChildrenFromDOM(categoryId) {
+        const categoryElement = document.getElementById(`category-${categoryId}`);
+        if (categoryElement) {
+            const childCategories = categoryElement.querySelectorAll('li[id^="category-"]');
+            childCategories.forEach(child => {
+                const childId = child.id.replace('category-', '');
+                removeCategoryFromDropdown(childId); 
+                child.remove();
+            });
+            
+            removeCategoryFromDropdown(categoryId);
+            categoryElement.remove();
+        }
+    }
+
+    // Функция для удаления категории из выпадающего списка
+    function removeCategoryFromDropdown(categoryId) {
+        const optionToRemove = parentSelect.querySelector(`option[value="${categoryId}"]`);
+        if (optionToRemove) {
+            optionToRemove.remove();
+        }
+    }
+
+    deleteCategoryBtn.addEventListener('click', deleteCategory);
+
     saveCategoryBtn.addEventListener('click', async () => {
         const categoryId = editCategoryId.value;
         const updatedData = {
@@ -175,24 +225,19 @@ categoryForm.addEventListener('submit', async (event) => {
                 body: JSON.stringify(updatedData),
             });
 
-            const resultText = await response.text();
-
             if (response.ok) {
-                const result = JSON.parse(resultText);
-                
-
-                saveCategoryBtn.style.display = 'none';
                 const parentOption = parentSelect.querySelector(`option[value='${categoryId}']`);
                 if (parentOption) {
                     parentOption.textContent = updatedData.button_name;
                 }
-                // Обновляем категорию на странице
-                const categoryLink = document.querySelector(`#category-${categoryId} span:nth-child(2)`);
+                const categoryLink = document.querySelector(`#category-${categoryId} .category-link`);
                 if (categoryLink) {
                     categoryLink.textContent = updatedData.button_name;
+                    categoryLink.dataset.categoryMessage = updatedData.message;
                 }
+                saveCategoryBtn.style.display = 'none';
+                deleteCategoryBtn.style.display = 'none';
             } else {
-                console.error('Ошибка при сохранении данных:', resultText);
                 alert('Ошибка при сохранении категории.');
             }
         } catch (error) {
@@ -201,6 +246,5 @@ categoryForm.addEventListener('submit', async (event) => {
         }
     });
 
-    // Загружаем категории при загрузке страницы
     loadCategories();
 });

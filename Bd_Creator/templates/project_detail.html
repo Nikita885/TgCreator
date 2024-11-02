@@ -43,7 +43,11 @@
         {% for category in project.categories.all %}
             {% if not category.parent %}
                 <li id="category-{{ category.id }}">
-                    <span class="toggle-children" style="cursor: pointer;"></span>
+                    {% if category.children.all %}
+                        <span class="toggle-children" style="cursor: pointer;">▶</span>
+                    {% else %}
+                        <span class="toggle-children"></span>
+                    {% endif %}
                     <a href="#" class="category-link" data-category-id="{{ category.id }}">{{ category.button_name }}</a>
                     <ul id="children-{{ category.id }}" class="category-children hidden">
                         {% for subcategory in category.children.all %}
@@ -56,6 +60,7 @@
             {% endif %}
         {% endfor %}
     </ul>
+    
     
     <!-- Кнопка для удаления проекта -->
     <form action="{% url 'delete_project' project.id %}" method="post">
@@ -79,7 +84,10 @@
 
         <!-- Кнопка сохранить, которая будет скрыта по умолчанию -->
         <button type="button" id="save-category-btn" style="display: none;">Сохранить</button>
-        
+
+        <button type="button" id="delete-category-btn" class="delete-category-btn" style="display: none;">Удалить</button>
+
+
     </form>
 
 
