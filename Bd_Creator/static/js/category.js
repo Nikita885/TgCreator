@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const editCategoryId = document.getElementById('edit-category-id');
     const saveCategoryBtn = document.getElementById('save-category-btn');
     const deleteCategoryBtn = document.querySelector('.delete-category-btn');
-
+    const toggleConditionBtn = document.getElementById('toggle-condition-btn'); // Кнопка переключения состояния
+    
     // Загрузка категорий при инициализации страницы
     async function loadCategories() {
         const projectInfo = document.getElementById('project-info');
@@ -72,45 +73,45 @@ document.addEventListener("DOMContentLoaded", () => {
         const categoryList = parentId
             ? document.getElementById(`children-${parentId}`)
             : document.getElementById('category-list');
-    
+
         if (!categoryList) {
             console.error(`Список для родителя ${parentId} не найден.`);
             return;
         }
-    
+
         const existingCategory = document.getElementById(`category-${id}`);
         if (existingCategory) {
             existingCategory.querySelector('.category-link').textContent = name;
             existingCategory.querySelector('.category-link').dataset.categoryMessage = message; // обновляем данные
             return;
         }
-    
+
         const li = document.createElement('li');
         li.id = `category-${id}`;
-    
+
         const toggleLink = document.createElement('span');
         toggleLink.textContent = children.length > 0 ? `▶ ` : ``;
         toggleLink.classList.add('toggle-link');
         toggleLink.style.cursor = 'pointer';
-    
+
         toggleLink.addEventListener('click', function (event) {
             event.stopPropagation();
             const childUl = document.getElementById(`children-${id}`);
-    
+
             if (childUl) {
                 childUl.classList.toggle('hidden');
                 const isHidden = childUl.classList.contains('hidden');
                 toggleLink.textContent = isHidden ? `▶ ` : `▼ `;
             }
         });
-    
+
         const categoryName = document.createElement('span');
         categoryName.textContent = name;
         categoryName.classList.add('category-link');
         categoryName.dataset.categoryId = id;
         categoryName.dataset.categoryMessage = message; // сохраняем сообщение для динамического обновления
         categoryName.style.cursor = 'pointer';
-    
+
         categoryName.addEventListener('click', function () {
             editButtonName.value = categoryName.textContent;
             editMessage.value = categoryName.dataset.categoryMessage;
@@ -119,17 +120,17 @@ document.addEventListener("DOMContentLoaded", () => {
             saveCategoryBtn.style.display = 'block';
             deleteCategoryBtn.style.display = 'block';
         });
-    
+
         li.appendChild(toggleLink);
         li.appendChild(categoryName);
-    
+
         const childrenUl = document.createElement('ul');
         childrenUl.id = `children-${id}`;
         childrenUl.classList.add('category-children', 'hidden');
         li.appendChild(childrenUl);
-    
+
         categoryList.appendChild(li);
-    
+
         if (parentId) {
             const parentToggleLink = document.querySelector(`#category-${parentId} .toggle-link`);
             if (parentToggleLink) {
@@ -137,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     }
-    
+
     // Функция для обновления выпадающего списка родительских категорий
     function updateParentDropdown(id, name) {
         const option = document.createElement('option');
@@ -246,5 +247,41 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Переключение состояния проекта
+    toggleConditionBtn.addEventListener('click', async () => {
+        const projectInfo = document.getElementById('project-info');
+        const projectId = projectInfo.getAttribute('data-project-id');
+        let currentCondition = projectInfo.getAttribute('data-condition'); // Измените const на let
+        const newCondition = currentCondition === 'true' ? false : true; // Переключаем состояние
+        toggleConditionBtn.textContent = currentCondition === 'true' ? 'Выкл' : 'Вкл'; // Устанавливаем текст кнопки
+    
+        try {
+            const response = await fetch(`/projects/${projectId}/edit_project/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ condition: newCondition }),
+            });
+    
+            if (response.ok) {
+                const result = await response.json();
+                currentCondition = newCondition; // Обновляем текущее состояние
+                toggleConditionBtn.textContent = currentCondition ? 'Выкл' : 'Вкл'; // Обновляем текст кнопки
+                projectInfo.setAttribute('data-condition', currentCondition); // Обновляем значение data-condition
+                alert(result.message || 'Состояние проекта успешно обновлено.');
+            } else {
+                alert('Ошибка при обновлении состояния проекта.');
+            }
+        } catch (error) {
+            console.error('Ошибка при переключении состояния проекта:', error);
+            alert('Произошла ошибка при переключении состояния проекта.');
+        }
+    });
+    
+
+    // Инициализация загрузки категорий
     loadCategories();
 });
+
