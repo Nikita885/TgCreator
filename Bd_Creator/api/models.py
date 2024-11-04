@@ -16,6 +16,7 @@ class Project(models.Model):
     name = models.CharField(max_length=255, verbose_name="Имя проекта")  # Название проекта
     owners = models.ManyToManyField(CustomUser, related_name='owned_projects', verbose_name="Владельцы", null=True)  # Владельцы проекта
     tg_token = models.CharField(max_length=255, verbose_name="Token TG")  # Токен Telegram бота
+    condition = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -26,6 +27,7 @@ class Category(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='categories', verbose_name="Проект")  # Связь с проектом
     message = models.TextField(blank=True, default='')
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='owned_categories', verbose_name="Владелец")
+    
     def save(self, *args, **kwargs):
         # Если категория не имеет родителя, значит, она головная
         if self.parent is None:

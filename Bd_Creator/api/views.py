@@ -28,34 +28,7 @@ from .forms import CustomAuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 
 
-"""@csrf_exempt
-def delete_category(request, category_id):
-    if request.method == 'DELETE':
-        category = get_object_or_404(Category, id=category_id)
-        category.delete()
-        
-        # Проверка, действительно ли категория удалена
-        if not Category.objects.filter(id=category_id).exists():
-            return JsonResponse({'message': 'Категория успешно удалена.'}, status=200)
-        else:
-            return JsonResponse({'error': 'Ошибка при удалении категории.'}, status=500)
 
-    return JsonResponse({'error': 'Метод не разрешен.'}, status=405)
-
-
-def delete_category(request, project_id):
-    try:
-        data = json.loads(request.body)
-        category_id = data.get('category_id')
-        category = Category.objects.get(id=category_id, project_id=project_id)
-
-        category.delete()
-        return JsonResponse({'success': 'Category deleted successfully'})
-
-    except Category.DoesNotExist:
-        return JsonResponse({'error': 'Category does not exist'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)"""
 
 def edit_category(request, category_id):
     if request.method == 'POST':
@@ -354,3 +327,21 @@ def project_detail(request, project_id):
         'project': project
     }
     return render(request, 'project_detail.html', context)
+
+def edit_project(request, project_id):
+    if request.method == 'POST':
+        try:
+            project = get_object_or_404(Project, id=project_id)  # Измените Category на Project
+            data = json.loads(request.body)
+
+            # Обновляем поле condition
+            project.condition = data.get('condition', project.condition)
+
+            # Сохраняем изменения
+            project.save()
+
+            return JsonResponse({'success': True, 'message': 'Проект обновлен успешно.'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Неверный метод запроса'}, status=405)

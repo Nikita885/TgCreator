@@ -16,7 +16,15 @@
     <div id="project-info" data-project-id="{{ project.id }}"></div> <!-- Скрытое поле с projectId -->
 
     <p><strong>Имя проекта:</strong> {{ project.name }}</p>
+
+    <!-- Кнопка для включения Telegram-бота -->
+    <button id="toggle-bot-btn" data-bot-active="{{ project.condition|yesno:'Включить бот,Выключить бот' }}">
+        {{ project.condition|yesno:'Включить бот,Выключить бот' }}
+    </button>
     
+
+
+
     <!-- Форма для добавления категории -->
     <form id="add-category-form" action="{% url 'add_category' project.id %}" method="post">
         {% csrf_token %}
@@ -61,7 +69,6 @@
         {% endfor %}
     </ul>
     
-    
     <!-- Кнопка для удаления проекта -->
     <form action="{% url 'delete_project' project.id %}" method="post">
         {% csrf_token %}
@@ -70,8 +77,8 @@
     
     <!-- Кнопка для возврата на главную -->
     <a href="/projects/">Назад к списку проектов</a>
+    
     <!-- Поля для редактирования категории -->
-
     <h3>Редактировать категорию</h3>
     <form id="edit-category-form">
         <label for="edit-button-name">Название кнопки:</label>
@@ -86,10 +93,13 @@
         <button type="button" id="save-category-btn" style="display: none;">Сохранить</button>
 
         <button type="button" id="delete-category-btn" class="delete-category-btn" style="display: none;">Удалить</button>
-
-
     </form>
 
-
+    <script>
+        // Заглушка для функции включения/выключения Telegram-бота
+        function toggleBot() {
+            alert("Функция для включения/выключения Telegram-бота ещё не реализована.");
+        }
+    </script>
 </body>
 </html>
