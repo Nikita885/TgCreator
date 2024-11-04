@@ -2,66 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryForm = document.getElementById('add-category-form');
     const categoryList = document.getElementById('category-list');
     const parentSelect = document.getElementById('parent');
-    const toggleBotBtn = document.getElementById('toggle-bot-btn');
 
-    // Получаем ID проекта
-    const projectInfo = document.getElementById('project-info');
-    const projectId = projectInfo.getAttribute('data-project-id');
-
-    // Установка начального текста кнопки на основе атрибута data-bot-active
-    toggleBotBtn.textContent = toggleBotBtn.getAttribute('data-bot-active');
-
-    // Обработчик для переключения текста кнопки и изменения состояния
-    toggleBotBtn.addEventListener('click', async () => {
-        const isBotActive = toggleBotBtn.textContent === 'Выключить бот';
-
-        // Отправляем запрос на сервер для обновления состояния
-        try {
-            const response = await fetch(`/projects/${projectId}/edit_project/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ condition: !isBotActive }), // Меняем состояние
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                // Меняем текст кнопки
-                toggleBotBtn.textContent = isBotActive ? 'Включить бот' : 'Выключить бот';
-            } else {
-                alert(result.error || 'Произошла ошибка при изменении состояния.');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при изменении состояния.');
-        }
-    });
-
-    // Загрузка категорий при инициализации страницы
-    async function loadCategories() {
-        const projectInfo = document.getElementById('project-info');
-        const projectId = projectInfo.getAttribute('data-project-id');
-
-        try {
-            const response = await fetch(`/projects/${projectId}/get_category/`);
-            const data = await response.json();
-
-            if (response.ok) {
-                categoryList.innerHTML = '';
-                data.categorys.forEach(category => {
-                    addCategoryToList(category.id, category.button_name, category.parent, category.message, category.children);
-                });
-            } else {
-                console.error('Ошибка при загрузке категорий:', data.error);
-            }
-        } catch (error) {
-            console.error('Ошибка при запросе категорий:', error);
-        }
-    }
-
-
+    // Поля для редактирования
+    const editButtonName = document.getElementById('edit-button-name');
+    const editMessage = document.getElementById('edit-message');
+    const editCategoryId = document.getElementById('edit-category-id');
+    const saveCategoryBtn = document.getElementById('save-category-btn');
+    const deleteCategoryBtn = document.querySelector('.delete-category-btn');
 
     // Загрузка категорий при инициализации страницы
     async function loadCategories() {
