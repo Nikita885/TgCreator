@@ -68,16 +68,21 @@ a:hover {
     right: 60px;
 }
 .buttonfoot {
+    
+    text-align: center;
+    position: relative;
+    top: -2px;
     color: rgb(245, 243, 243);
     cursor: pointer;
     font-size: 16px;
     width: 150px; 
-    padding: 10px 20px;
     background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
     box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
     transition: background-color 0.3s, transform 0.2s;
     border: 1px solid white;
     border-radius: 8px; 
+    text-align: center; /* Выравнивание текста по центру внутри кнопки */
+    padding: 10px 20px; /* Немного уменьшил внутренний отступ для лучшего отображения */
 }
 
 .exit{
@@ -100,11 +105,13 @@ button {
     cursor: pointer;
     font-size: 16px;
     width: 150px;
-    padding: 10px 20px;
+    padding: 10px 70px;
     background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
     box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
     transition: background-color 0.3s, transform 0.2s;
     border-radius: 8px; 
+    text-align: left; /* Выравнивание текста по левому краю */
+    padding-left: 8px; /* Дополнительный отступ слева для выравнивания текста */    
 }
 #project-form {
     display: flex;
@@ -136,7 +143,7 @@ a:hover {
 .project-item {
     position: relative;
     display: inline-block;
-    margin: 10px;
+   
 }
 .project-item button {
     width: 100%;

@@ -11,11 +11,11 @@ function addProjectButton(id, name) {
 
     // Кнопка для перехода на проект
     const projectButton = document.createElement('button');
-    projectButton.textContent = name;
+    projectButton.textContent = name.length > 10 ? name.slice(0, 10) + '...' : name;
     projectButton.onclick = function() {
         window.location.href = `/projects/${id}`;
     };
-    projectButton.className = 'buttonfoot';
+    projectButton.className = 'button';
 
     projectItem.appendChild(toggleSwitch); // Добавляем переключатель
     projectItem.appendChild(projectButton); // Добавляем кнопку проекта
