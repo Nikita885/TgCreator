@@ -4,7 +4,7 @@ function addProjectButton(id, name) {
 
     // Кнопка для перехода на проект
     const projectButton = document.createElement('button');
-    projectButton.textContent = name;
+    projectButton.textContent = name.length > 10 ? name.slice(0, 10) + '...' : name;
     projectButton.onclick = function() {
         window.location.href = `/projects/${id}`;  // Переход на страницу проекта
     };
@@ -15,6 +15,7 @@ function addProjectButton(id, name) {
     // Добавляем проект на страницу
     document.getElementById('project-list').appendChild(projectItem);
 }
+
 
 // Подгрузка всех проектов при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
