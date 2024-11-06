@@ -20,6 +20,5 @@ urlpatterns = [
     path('projects/<int:project_id>/edit_project/', edit_project, name='edit_project'),
     path('categories/<int:category_id>/edit/', edit_category, name='edit_category'),
     path('categories/<int:category_id>/delete_category_with_children/', delete_category_with_children, name='delete_category_with_children'),
-
     path('projects/<int:project_id>/get_category/', get_user_category, name='get_category'),
 ]

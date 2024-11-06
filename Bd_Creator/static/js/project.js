@@ -1,20 +1,30 @@
-// Функция для создания кнопки проекта с кнопкой удаления
 function addProjectButton(id, name) {
-    const projectItem = document.createElement('div'); // Контейнер для проекта
+    const projectItem = document.createElement('div');
+    projectItem.className = 'project-item'; // Контейнер для кнопки и переключателя
+
+    const toggleSwitch = document.createElement('label');
+    toggleSwitch.className = 'toggle-switch';
+    toggleSwitch.innerHTML = `
+        <input type="checkbox">
+        <span class="slider"></span>
+    `;
 
     // Кнопка для перехода на проект
     const projectButton = document.createElement('button');
     projectButton.textContent = name;
     projectButton.onclick = function() {
-        window.location.href = `/projects/${id}`;  // Переход на страницу проекта
+        window.location.href = `/projects/${id}`;
     };
+    projectButton.className = 'buttonfoot';
 
-    // Добавляем кнопку проекта в контейнер
-    projectItem.appendChild(projectButton);
+    projectItem.appendChild(toggleSwitch); // Добавляем переключатель
+    projectItem.appendChild(projectButton); // Добавляем кнопку проекта
 
-    // Добавляем проект на страницу
     document.getElementById('project-list').appendChild(projectItem);
 }
+
+
+
 
 // Подгрузка всех проектов при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
@@ -44,6 +54,8 @@ document.getElementById('add-project-button').addEventListener('click', function
     }
 });
 
+  
+  
 
 // Обработка отправки формы для создания проекта
 document.getElementById('submit-project').addEventListener('click', function(event) {
