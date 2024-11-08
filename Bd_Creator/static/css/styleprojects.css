@@ -153,9 +153,9 @@ a:hover {
 /* Контейнер для переключателя */
 .toggle-switch {
     position: absolute;
-    top: 5px; /* Смещение переключателя по вертикали */
-    right: 5px; /* Смещение переключателя по горизонтали */
-    z-index: 10; /* Слой выше кнопки */
+    top: 5px;
+    right: 5px;
+    z-index: 10;
     width: 60px;
     height: 30px;
 }
@@ -175,17 +175,17 @@ a:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background: inherit; /* Цвет слайдера совпадает с фоном */
+    background: linear-gradient(54deg, #537255, #2c292e); /* Светло-серый цвет для выключенного состояния */
     border-radius: 30px;
-    transition: 0.4s;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3), /* внутренние тени для вырезанного эффекта */
-                inset 0 -2px 4px rgba(255, 255, 255, 0.1); /* легкий свет для объемности */
+    transition: background 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3),
+                inset 0 -2px 4px rgba(255, 255, 255, 0.1);
 }
-.slider:hover {
-    background-color: lightgray;
-    transform: scale(1.05);
 
+.slider:hover {
+    transform: scale(1.05);
 }
+
 /* Круг внутри переключателя */
 .slider:before {
     position: absolute;
@@ -200,12 +200,14 @@ a:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Перемещение круга вправо при включении */
+/* Перемещение и фиолетовый фон при включении */
 input:checked + .slider {
-    background: linear-gradient(45deg, #3a70aa, #194d6b, #3a70aa);
+    background: linear-gradient(45deg, #75aa7c, #14350c); 
+
 }
 
 input:checked + .slider:before {
     transform: translateX(30px);
+    background-color: #e0e0e0; /* Небольшой контраст внутри круга */
 }
 
