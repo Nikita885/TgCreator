@@ -3,18 +3,15 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-
 def redirect_on_404(get_response):
     def middleware(request):
         response = get_response(request)
-        
         # Проверяем, что 404 страница не для конкретных маршрутов, например для динамических URL с проектами
         if response.status_code == 404 and not request.path.startswith('/projects/'):
             return HttpResponseRedirect('/projects/')  # Перенаправляем на главную страницу
 
         return response
     return middleware
-
 
 def login_required_middleware(get_response):
     def middleware(request):
