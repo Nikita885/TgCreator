@@ -31,11 +31,11 @@
                             {% else %}
                                 <span class="toggle-children"></span>
                             {% endif %}
-                            <a href="#" class="category-link" data-category-id="{{ category.id }}">{{ category.button_name }}</a>
+                            <a class="category-link" data-category-id="{{ category.id }}">{{ category.button_name }}</a>
                             <ul id="children-{{ category.id }}" class="category-children hidden">
                                 {% for subcategory in category.children.all %}
                                     <li id="category-{{ subcategory.id }}">
-                                        <a href="#" class="category-link" data-category-id="{{ subcategory.id }}">{{ subcategory.button_name }}</a>
+                                        <a class="category-link" data-category-id="{{ subcategory.id }}">{{ subcategory.button_name }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>

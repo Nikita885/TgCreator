@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Переключение состояния проекта
-    toggleConditionBtn.addEventListener('click', async () => {
+    /* toggleConditionBtn.addEventListener('click', async () => {
         const projectInfo = document.getElementById('project-info');
         const projectId = projectInfo.getAttribute('data-project-id');
         let currentCondition = projectInfo.getAttribute('data-condition'); // Измените const на let
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Ошибка при переключении состояния проекта:', error);
             alert('Произошла ошибка при переключении состояния проекта.');
         }
-    });
+    });*/
     
 
     // Инициализация загрузки категорий
