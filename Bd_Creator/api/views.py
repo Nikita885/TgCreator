@@ -330,20 +330,7 @@ def project_detail(request, project_id):
     }
     return render(request, 'project_detail.html', context)
 
-async def run_bot_for_project(project):
-    token = project.tg_token
-    categories = await sync_to_async(list)(project.categories.all())
-    await echo_bot(token, categories)
-def stop_bot_for_project(project):
-    # Остановка бота, если он запущен
-    bot = running_bots.get(project.id)
-    if bot:
-        # Здесь можно вызвать методы бота для корректной остановки
-        # Например, отключение от обновлений или освобождение ресурсов
-        del running_bots[project.id]  # Удаляем из словаря запущенных ботов
-        print(f"Бот для проекта '{project.name}' остановлен.")
-    else:
-        print(f"Бот для проекта '{project.name}' не был запущен.")
+
 
 def edit_project(request, project_id):
     if request.method == 'POST':
@@ -361,11 +348,6 @@ def edit_project(request, project_id):
             # Сохраняем изменения
             project.save()
 
-            # Запускаем или останавливаем бота в зависимости от нового состояния
-            if new_condition and not current_condition:
-                asyncio.run(run_bot_for_project(project))
-            elif not new_condition and current_condition:
-                stop_bot_for_project(project)
 
             return JsonResponse({'success': True, 'message': 'Проект обновлен успешно.'})
         except json.JSONDecodeError:
