@@ -137,4 +137,7 @@ button:active {
     text-decoration: none;
     color: white;
     cursor: pointer;
+
+    display: flex;
 }
+

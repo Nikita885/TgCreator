@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentCondition = newCondition; // Обновляем текущее состояние
                 toggleConditionBtn.textContent = currentCondition ? 'Выкл' : 'Вкл'; // Обновляем текст кнопки
                 projectInfo.setAttribute('data-condition', currentCondition); // Обновляем значение data-condition
-                alert(result.message || 'Состояние проекта успешно обновлено.');
+                alert(result.message || 'Состояние проекта успешно обнQо.');
             } else {
                 alert('Ошибка при обновлении состояния проекта.');
             }

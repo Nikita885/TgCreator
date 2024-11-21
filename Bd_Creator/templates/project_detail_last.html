@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/project_detail_last.css' %}">
+    <title>{{ project.name }}</title>
+    
+    <script src="{% static 'js/project_detail_last.js' %}"></script> 
+</head>
+<body>
+    <div id="project-info" data-project-id="{{ project.id }}"></div>
+
+    <div class="left_wing"  id="resizable">
+        <div class="left_menu">
+            <div class="left_menu_block_1 selected" onclick="selectItem(this)">
+                <img class="layers-icon"   src="{% static 'svg/layer_lc9gswqhb4md.svg' %}">
+            </div>
+            <div class="left_menu_block_2" onclick="selectItem(this)">
+                <img class="layers-icon" src="{% static 'svg/plus_b41v4ulenm5h.svg' %}"> 
+            </div>
+            <div class="left_menu_block">
+                <img class="layers-icon" src="{% static 'svg/save_kzhkz6gnxkkl.svg' %}"> 
+            </div>
+            <div class="left_menu_block" onclick="window.location.href='/projects/'">
+                <img class="layers-icon" src="{% static 'svg/exit_kc3ogyqrcwqs.svg' %}"> 
+            </div>
+        </div>  
+        <div class="left_pop-up_menu_layers selectes_pop-up"></div>  
+        <div class="left_pop-up_menu_add_element">
+            <div class="add_element" id="add_element_1">
+                <div class="add_element_name">
+                    Кнопка
+                </div>
+            </div>
+            <div class="add_element" id="add_element_2">
+                <div class="add_element_name">
+                    Данные
+                </div>
+            </div>
+        </div>  
+        <div class="add_element_menu">
+            <div class="add_element_menu_bac">
+                
+            </div>
+        </div>
+    </div>
+    <div class="working_field">
+
+    </div>
+    <div class="right_wing">
+
+    </div>
+</body>
+</html>

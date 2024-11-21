@@ -255,7 +255,7 @@ class CustomLoginView(TokenObtainPairView):
             else:
                 return JsonResponse({'message': 'Invalid credentials'}, status=400)
         else:
-            return render(request, 'login.html', {'form': form})  # Возвращаем форму с ошибками
+            return render(request, 'login.html', {'form': form})  
         
 
 def logout_view(request):
@@ -322,15 +322,6 @@ def delete_project(request, project_id):
     # Если запрос не является POST (например, GET), возвращаем ошибку 405
     return HttpResponse(status=405)  # Метод не разрешен
 
-def project_detail(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    print(request.path)
-    context = {
-        'project': project
-    }
-    return render(request, 'project_detail.html', context)
-
-
 
 def edit_project(request, project_id):
     if request.method == 'POST':
@@ -356,3 +347,34 @@ def edit_project(request, project_id):
             return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'error': 'Неверный метод запроса'}, status=405)
+
+
+
+
+
+def project_detail(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    print(request.path)
+    context = {
+        'project': project
+    }
+    return render(request, 'project_detail_last.html', context)
+
+def new_get_category(request, project_id):
+    user = request.idusers
+    categories = Category.objects.filter(owner=user, project_id=project_id)
+    category_dict = {category.id: {
+        'id': category.id,
+        'button_name': category.button_name,
+        'parent': category.parent.id if category.parent else None,
+        'project_id': category.project_id.id,
+        'message': category.message,
+        'owner': category.owner.id,
+        'children': list(category.children.values('id', 'button_name', 'message')), 
+    } for category in categories}
+
+    category_list = list(category_dict.values())
+
+    return JsonResponse({'categorys': category_list}, safe=False)
+
+

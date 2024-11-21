@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from api.views import register, CustomLoginView, logout_view, home_view, projects, create_project, get_projects, delete_project, project_detail
-from api.views import create_category, edit_category, delete_category_with_children, get_user_category, edit_project
+from api.views import create_category, edit_category, delete_category_with_children, new_get_category, edit_project
 from django.shortcuts import redirect
 
 urlpatterns = [
@@ -20,5 +20,5 @@ urlpatterns = [
     path('projects/<int:project_id>/edit_project/', edit_project, name='edit_project'),
     path('categories/<int:category_id>/edit/', edit_category, name='edit_category'),
     path('categories/<int:category_id>/delete_category_with_children/', delete_category_with_children, name='delete_category_with_children'),
-    path('projects/<int:project_id>/get_category/', get_user_category, name='get_category'),
+    path('projects/<int:project_id>/get_category/', new_get_category, name='get_category'),
 ]
