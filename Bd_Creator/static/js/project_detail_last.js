@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let startWidthRight = 0;
     let offsetStartLeft = 0; // Смещение для левого крыла
     let offsetStartRight = 0; // Смещение для правого крыла
+    const minWidth = 250; // Минимальная ширина для левого и правого крыла в пикселях
+    const maxWidth = window.innerWidth / 2.02; // Максимальная ширина для левого и правого крыла - половина экрана
 
     // Обработчик для левого крыла
     if (resizableLeft) {
@@ -43,13 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Функция для изменения ширины левого элемента
     function resizeLeft(e) {
         if (isResizingLeft) {
-            // Теперь правильно вычисляем разницу между курсором и начальной позицией
             const delta = e.clientX - startX; // Разница между текущим и начальным положением мыши
-            const newWidthLeft = startWidthLeft + delta ; // Новая ширина для левого крыла
-            if (newWidthLeft > 0) {
-                const newWidthLeftVW = (newWidthLeft / window.innerWidth) * 100;
-                resizableLeft.style.width = `${newWidthLeftVW}vw`; // Применяем новую ширину
-            }
+            let newWidthLeft = startWidthLeft + delta; // Новая ширина для левого крыла
+
+            newWidthLeft = Math.max(newWidthLeft, minWidth); // Ограничиваем минимальной шириной
+            newWidthLeft = Math.min(newWidthLeft, maxWidth); // Ограничиваем максимальной шириной
+
+            const newWidthLeftVW = (newWidthLeft / window.innerWidth) * 100;
+            resizableLeft.style.width = `${newWidthLeftVW}vw`; // Применяем новую ширину
         }
     }
 
@@ -99,29 +102,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function resizeRight(e) {
         if (isResizingRight) {
             const delta = e.clientX - startX; // Разница между текущим и начальным положением мыши
-            const newWidthRight = startWidthRight - delta + offsetStartRight; // Правильное вычисление ширины для правого крыла
-            if (newWidthRight > 0) {
-                const newWidthRightVW = (newWidthRight / window.innerWidth) * 100;
-                resizableRight.style.width = `${newWidthRightVW}vw`; // Применяем новую ширину
-            }
+            let newWidthRight = startWidthRight - delta + offsetStartRight; // Правильное вычисление ширины для правого крыла
+
+            newWidthRight = Math.max(newWidthRight, minWidth); // Ограничиваем минимальной шириной
+            newWidthRight = Math.min(newWidthRight, maxWidth); // Ограничиваем максимальной шириной
+
+            const newWidthRightVW = (newWidthRight / window.innerWidth) * 100;
+            resizableRight.style.width = `${newWidthRightVW}vw`; // Применяем новую ширину
         }
     }
+
+    // Функция для выделения элемента
     function selectItem(element) {
-        // Если у элемента уже есть класс selected, выходим из функции
         if (element.classList.contains("selected")) {
             return;
         }
-    
-        // Убираем выделение со всех меню
+
         const menuItems = document.querySelectorAll(".left_menu_block_1, .left_menu_block_2");
         menuItems.forEach(item => item.classList.remove("selected"));
-        element.classList.add("selected"); // Добавляем выделение выбранному элементу
-    
-        // Убираем класс selectes_pop-up у всех поп-апов
+        element.classList.add("selected");
+
         const allLayers = document.querySelectorAll(".left_pop-up_menu_layers, .left_pop-up_menu_add_element");
         allLayers.forEach(layer => layer.classList.remove("selectes_pop-up"));
-    
-        // Добавляем класс selectes_pop-up нужным элементам
+
         if (element.classList.contains("left_menu_block_1")) {
             const menuItemsLayers = document.querySelectorAll(".left_pop-up_menu_layers");
             menuItemsLayers.forEach(layer => layer.classList.add("selectes_pop-up"));
@@ -131,26 +134,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     window.selectItem = selectItem;
-    
-    
-    
+
+    // Функция для загрузки категорий
     async function loadCategories() {
         const projectInfo = document.getElementById('project-info');
         const projectId = projectInfo.getAttribute('data-project-id');
         try {
-            // Отправляем GET-запрос к вашему API
             const response = await fetch(`/projects/${projectId}/get_category/`);
             if (!response.ok) {
                 throw new Error(`Ошибка загрузки категорий: ${response.statusText}`);
             }
-    
+
             const data = await response.json();
-            console.log('Загруженные категории:', data.categorys); // Выводим категории в консоль
+            console.log('Загруженные категории:', data.categorys);
         } catch (error) {
             console.error('Ошибка при загрузке категорий:', error);
         }
     }
-    
+
     loadCategories();
-    
 });

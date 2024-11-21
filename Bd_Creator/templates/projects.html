@@ -13,25 +13,30 @@
 </head>
 <body>
     
-    <header>
-        <div class="header-content">
-            <div class="links">
-                <ul>      
-                    <li><a method="post" id="logout-form" href="{% url 'logout' %} "type="submit" class="exit">exit</a></li>
-                    {% csrf_token %}
-                </ul>
+        
+    <div class="left_wing">
+        <div class="left_menu">
+    
+            
+            <div class="left_menu_block_2" id="add-project-svg">
+                <img class="layers-icon" src="{% static 'svg/plus_b41v4ulenm5h.svg' %}" alt="Add">
             </div>
-            <div class="logo">ADMIN PANEL</div>
+    
+          
+            <a method="post" id="logout-form" href="{% url 'logout' %}" type="submit" class="left_menu_block exit">
+                <img class="layers-icon" src="{% static 'svg/exit_kc3ogyqrcwqs.svg' %}" alt="Logout">
+            </a>
+    
         </div>
-    </header>
-
+    </div>
+        
     <form action="{% url 'logout' %}" method="post" id="logout-form">
         {% csrf_token %}
         
     </form>
 
     <div id="project-list">
-        <button class="buttonfoot" id="add-project-button">+</button>
+        
         <!-- Здесь будут динамически добавляться проекты -->
     </div>
     
@@ -52,5 +57,6 @@
     
     <!-- Подключение JavaScript файла -->
     <script src="{% static 'js/project.js' %}"></script>
+    <script src="{% static 'js/project_detail_last.js' %}"></script> 
 </body>
 </html>

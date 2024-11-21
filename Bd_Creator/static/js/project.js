@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Показываем/скрываем форму для создания проекта и меняем текст кнопки
-document.getElementById('add-project-button').addEventListener('click', function() {
+document.getElementById('add-project-svg').addEventListener('click', function() {
+    // Выполняем ту же логику, что и для кнопки
     const projectForm = document.getElementById('project-form');
     const toggleButton = document.getElementById('add-project-button');
 
