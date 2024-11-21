@@ -71,20 +71,10 @@ input:checked + .slider {
     cursor: ew-resize; 
 }
 
-<<<<<<< HEAD
-.left_menu{
-    width: 60px;
-    height: 100vh;
-    background: #181818;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-=======
 .left_menu {
     background: linear-gradient(180deg, #181818, #2c2c2c);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: inset -3px 0 8px rgba(0, 0, 0, 0.5);
->>>>>>> a328d5303635d5793351905925fd76c975ea92a2
 }
 .left_menu_block,
 .left_menu_block_1,
