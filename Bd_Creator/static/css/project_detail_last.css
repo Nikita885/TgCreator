@@ -141,7 +141,7 @@ input:checked + .slider {
     
     user-select: none;
 }
-.add_element_menu{
+.add_element_menu_bac{
     width: 100vw;
     height: 100vh;
     position: absolute;
@@ -149,19 +149,82 @@ input:checked + .slider {
     left: 0;
 
     background-color: rgba(0, 0, 0, 0.308);
+    z-index: 10;
 }
-.add_element_menu_bac{
+.add_element_menu{
     width: 500px;
-    height: 500px;
+    height: 250px;
 
     border: 2px solid transparent;
     border-radius: 5px;
     box-shadow: 0 0 20px #194A02, 0 0 30px #194A02, 0 0 40px #194A02;
 
-    background-color: #000000;
+    background: linear-gradient(180deg, #181818, #2c2c2c);
+
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+
+    z-index: 123;
+}
+.add_element_menu_text{
+    color: white;
+    position: absolute;
+    top: 20%;
+    left: 5%; 
+    font-size: 20px;
+}
+.add_element_menu_input {
+    width: 415px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    border-radius: 10px;
+    padding: 10px 15px;
+    border: 2px solid #ccc;
+    outline: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #00000000;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.add_element_menu_input:focus {
+    border-color: #194A02;
+    box-shadow: 0 4px 8px #194A02;
+
+}
+
+.add_element_menu_input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+.add_element_menu_button{
+
+    background-color: #194A02;
+    border-radius: 8px;
+    width: 415px;
+    height: 40px;
+
+
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+    
+}
+.add_element_menu_button:hover{
+    background-color: #1b5700;
+}
+.add_element_menu_button_text{
+    color: white;
+    font-size: 20px;
 
     position: absolute;
     top: 50%;
-    left:50%;
-    transform: translate(-50%, -50%);
+    left: 50%;
+    transform: translate(-50%,-50%);
 }

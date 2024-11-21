@@ -135,6 +135,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.selectItem = selectItem;
 
+    function СloseBack(element) {
+        const backElement = document.querySelector('.add_element_menu_bac');
+        const menuElement = document.querySelector('.add_element_menu');
+    
+        if (backElement && menuElement) {
+            backElement.style.display = 'none';
+            menuElement.style.display = 'none';
+        }
+    }
+    
+    window.СloseBack = СloseBack;
+
+    function OpenMenu(element) {
+        const backElement = document.querySelector('.add_element_menu_bac');
+        const menuElement = document.querySelector('.add_element_menu');
+        const inputElement = document.querySelector('.add_element_menu_input');
+    
+        if (backElement && menuElement) {
+            backElement.style.display = 'flex';
+            menuElement.style.display = 'flex';
+        }
+        if (inputElement) {
+            inputElement.value = ''; 
+        }
+    }
+    
+    window.OpenMenu = OpenMenu;
+
+    
     // Функция для загрузки категорий
     async function loadCategories() {
         const projectInfo = document.getElementById('project-info');
