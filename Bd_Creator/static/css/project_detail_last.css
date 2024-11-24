@@ -82,6 +82,7 @@ input:checked + .slider {
     width: 60px;
     height: 60px;
     position: relative;
+    background-color: #00000000;
 }
 .left_menu_block_1.selected,
 .left_menu_block_2.selected {
@@ -142,6 +143,7 @@ input:checked + .slider {
     user-select: none;
 }
 .add_element_menu_bac{
+    display: none;
     width: 100vw;
     height: 100vh;
     position: absolute;
@@ -152,6 +154,7 @@ input:checked + .slider {
     z-index: 10;
 }
 .add_element_menu{
+    display: none;
     width: 500px;
     height: 250px;
 

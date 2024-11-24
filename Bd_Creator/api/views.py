@@ -104,47 +104,7 @@ def get_user_category(request, project_id):
 
 
 
-def create_category(request, project_id):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            print(data)
-            button_name = data.get('button_name')
-            parent_id = data.get('parent')
-            message = data.get('message')  # Получаем сообщение из запроса
 
-            if button_name and message:  # Проверяем, что оба значения присутствуют
-                
-                parent = Category.objects.get(id=parent_id) if parent_id else None
-                project = Project.objects.get(id=project_id)
-                
-                category = Category.objects.create(
-                    button_name=button_name,
-                    parent=parent,
-                    project_id=project,
-                    owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
-                    message=message  # Сохраняем сообщение
-                )
-                print(category)
-                category.save()
-                
-                return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
-
-            return JsonResponse({'error': 'Missing data'}, status=400)
-
-        except Category.DoesNotExist:
-            return JsonResponse({'error': 'Parent category does not exist'}, status=404)
-
-        except Project.DoesNotExist:
-            return JsonResponse({'error': 'Project does not exist'}, status=404)
-
-        except ValidationError as e:
-            return JsonResponse({'error': str(e)}, status=400)
-
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    
-    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 
@@ -377,4 +337,33 @@ def new_get_category(request, project_id):
 
     return JsonResponse({'categorys': category_list}, safe=False)
 
+def create_category(request, project_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            button_name = data.get('button_name')
+            parent_id = data.get('parent')
+            message = data.get('message')  # Получаем сообщение из запроса
 
+            
+            if button_name and message:  # Проверяем, что оба значения присутствуют
+                parent = Category.objects.get(id=parent_id) if parent_id != "None" else None
+                project = Project.objects.get(id=project_id)
+                
+                category = Category.objects.create(
+                    button_name=button_name,
+                    parent=parent,
+                    project_id=project,
+                    owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
+                    message=message  # Сохраняем сообщение
+                )
+                print(category)
+                category.save()
+                
+                return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
+
+            return JsonResponse({'error': 'Missing data'}, status=400)
+        except ValidationError as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid request'}, status=400)

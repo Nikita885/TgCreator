@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/project_detail_last.css' %}">
     <title>{{ project.name }}</title>
@@ -22,14 +21,16 @@
             <div class="left_menu_block_2" onclick="selectItem(this)">
                 <img class="layers-icon" src="{% static 'svg/plus_b41v4ulenm5h.svg' %}"> 
             </div>
-            <div class="left_menu_block">
+            <button class="left_menu_block" id="send-categories-btn" >
                 <img class="layers-icon" src="{% static 'svg/save_kzhkz6gnxkkl.svg' %}"> 
-            </div>
+            </button>
             <div class="left_menu_block" onclick="window.location.href='/projects/'">
                 <img class="layers-icon" src="{% static 'svg/exit_kc3ogyqrcwqs.svg' %}"> 
             </div>
         </div>  
-        <div class="left_pop-up_menu_layers selectes_pop-up"></div>  
+        <div class="left_pop-up_menu_layers selectes_pop-up">
+
+        </div>
         <div class="left_pop-up_menu_add_element">
             <div class="add_element" id="add_element_1" onclick="OpenMenu()">
                 <div class="add_element_name">
@@ -43,18 +44,20 @@
             </div>
         </div>  
         <div class="add_element_menu_bac" onclick="СloseBack()"></div>
+        
         <div class="add_element_menu">
             <div class="add_element_menu_text">
                 Название кнопки
             </div>
             <input class="add_element_menu_input">
-            <div class="add_element_menu_button">
+            <button class="add_element_menu_button">
                 <div class="add_element_menu_button_text">
                     Создать
                 </div>
-            </div>
+            </button>
         </div>
         
+        <div id="categories"></div>
         
     </div>
     <div class="working_field">

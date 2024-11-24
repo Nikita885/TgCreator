@@ -163,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.OpenMenu = OpenMenu;
 
-    
     // Функция для загрузки категорий
     async function loadCategories() {
         const projectInfo = document.getElementById('project-info');
@@ -180,6 +179,139 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Ошибка при загрузке категорий:', error);
         }
     }
+
+    loadCategories();
+
+
+
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const projectInfo = document.getElementById('project-info');
+    const projectId = projectInfo.getAttribute('data-project-id');
+    const categoriesDiv = document.getElementById("categories");
+    const addElementMenuButton = document.querySelector(".add_element_menu_button");
+    const buttonNameInput = document.querySelector(".add_element_menu_input");
+    const layersContainer = document.querySelector(".left_pop-up_menu_layers");
+    const sendCategoriesButton = document.getElementById("send-categories-btn"); // Кнопка для отправки категорий
+    let categories = {};
+    let isDataSaved = true;
+
+
+
+    window.addEventListener("beforeunload", (event) => {
+        if (!isDataSaved) {
+            event.preventDefault();
+            event.returnValue = "";
+        }
+    });
+
+    async function loadCategories() {
+        try {
+            const response = await fetch(`/projects/${projectId}/get_category/`);
+            const data = await response.json();
+
+            categories = data.categorys.reduce((acc, cat) => {
+                acc[cat.id] = cat;
+                return acc;
+            }, {});
+
+            renderCategories();
+        } catch (error) {
+            console.error("Ошибка загрузки категорий:", error);
+        }
+    }
+
+    function renderCategories() {
+        categoriesDiv.innerHTML = "";
+        layersContainer.innerHTML = "";
+        for (const id in categories) {
+            const category = categories[id];
+            addToLayers(category.button_name);
+            
+        }
+    }
+
+    function addToLayers(buttonName) {
+        const layerElement = document.createElement("div");
+        layerElement.className = "add_element";
+        layerElement.innerHTML = `
+            <div class="add_element_name">${buttonName}</div>
+        `;
+        layersContainer.appendChild(layerElement);
+    }
+
+    function createCategory(buttonName, message, None, changes, created) {
+        const newCategoryId = Date.now();
+        const newCategory = {
+            id: newCategoryId,
+            button_name: buttonName,
+            message: message,
+            parent: None,
+            change: changes,
+            created: created,
+        };
+
+        categories[newCategoryId] = newCategory;
+        renderCategories();
+    }
+    function getCSRFToken() {
+        const csrfCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='));
+        return csrfCookie ? csrfCookie.split('=')[1] : '';
+    }
+
+    async function sendCreatedCategories() {
+        const csrfToken = getCSRFToken();
+        const createdCategories = Object.values(categories).filter(cat => cat.created);
+
+        for (const category of createdCategories) {
+            console.log(1232131);
+            
+            try {
+                const response = await fetch(`/projects/${projectId}/add_category/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken,
+                    },
+                    body: JSON.stringify({
+                        button_name: category.button_name,
+                        parent: category.parent,
+                        message: category.message,
+                    }),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(`Категория ${result.category_id} успешно сохранена.`);
+                    category.created = false; // Обновляем статус на локальной стороне
+                    
+                    isDataSaved = true;
+                } else {
+                    const error = await response.json();
+                    console.error("Ошибка при сохранении категории:", error);
+                }
+            } catch (error) {
+                console.error("Ошибка соединения с сервером:", error);
+            }
+        }
+    }
+
+    addElementMenuButton.addEventListener("click", () => {
+        
+        const buttonName = buttonNameInput.value.trim();
+        if (buttonName) {
+            createCategory(buttonName, "123", "None", false, true);
+            buttonNameInput.value = '';
+            isDataSaved = false;
+        } else {
+            alert("Пожалуйста, введите название кнопки!");
+        }
+    });
+
+    sendCategoriesButton.addEventListener("click", sendCreatedCategories);
 
     loadCategories();
 });
