@@ -32,24 +32,7 @@ from asgiref.sync import sync_to_async
 
 running_bots = {}
 
-def edit_category(request, category_id):
-    if request.method == 'POST':
-        try:
-            category = get_object_or_404(Category, id=category_id)
-            data = json.loads(request.body)
 
-            # Обновляем поля категории
-            category.button_name = data.get('button_name', category.button_name)
-            category.message = data.get('message', category.message)
-
-            # Сохраняем изменения
-            category.save()
-
-            return JsonResponse({'success': True, 'message': 'Категория обновлена успешно.'})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-
-    return JsonResponse({'error': 'Неверный метод запроса'}, status=405)
 
 
 def delete_category_with_children(request, category_id):
@@ -345,25 +328,62 @@ def create_category(request, project_id):
             button_name = data.get('button_name')
             parent_id = data.get('parent')
             message = data.get('message')  # Получаем сообщение из запроса
-
+            change = data.get('change')
+            created = data.get('created')
+            category_id = data.get('category_id')
             
-            if button_name and message:  # Проверяем, что оба значения присутствуют
-                parent = Category.objects.get(id=parent_id) if parent_id != "None" else None
-                project = Project.objects.get(id=project_id)
-                
-                category = Category.objects.create(
-                    button_name=button_name,
-                    parent=parent,
-                    project_id=project,
-                    owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
-                    message=message  # Сохраняем сообщение
-                )
-                print(category)
-                category.save()
-                
-                return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
+            if created:
+                if button_name and message:  # Проверяем, что оба значения присутствуют
+                    parent = Category.objects.get(id=parent_id) if parent_id != "None" else None
+                    project = Project.objects.get(id=project_id)
+                    
+                    category = Category.objects.create(
+                        button_name=button_name,
+                        parent=parent,
+                        project_id=project,
+                        owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
+                        message=message  # Сохраняем сообщение
+                    )
+                    print(category)
+                    category.save()
+                    
+                    return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
+            if change:
+                try:
+                    category = get_object_or_404(Category, id=category_id)
+                    data = json.loads(request.body)
+
+                    # Обновляем поля категории
+                    category.button_name = data.get('button_name', category.button_name)
+                    category.message = data.get('message', category.message)
+
+                    # Сохраняем изменения
+                    category.save()
+
+                    return JsonResponse({'success': True, 'message': 'Категория обновлена успешно.'})
+                except Exception as e:
+                    return JsonResponse({'error': str(e)}, status=400)
 
             return JsonResponse({'error': 'Missing data'}, status=400)
         except ValidationError as e:
             return JsonResponse({'error': str(e)}, status=400)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def edit_category(request, category_id):
+    if request.method == 'POST':
+        try:
+            category = get_object_or_404(Category, id=category_id)
+            data = json.loads(request.body)
+
+            # Обновляем поля категории
+            category.button_name = data.get('button_name', category.button_name)
+            category.message = data.get('message', category.message)
+
+            # Сохраняем изменения
+            category.save()
+
+            return JsonResponse({'success': True, 'message': 'Категория обновлена успешно.'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Неверный метод запроса'}, status=405)

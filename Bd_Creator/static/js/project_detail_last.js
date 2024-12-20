@@ -194,8 +194,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const buttonNameInput = document.querySelector(".add_element_menu_input");
     const layersContainer = document.querySelector(".left_pop-up_menu_layers");
     const sendCategoriesButton = document.getElementById("send-categories-btn"); // Кнопка для отправки категорий
+    const buttonNameInputRight = document.querySelector('.right_settings_button_name_input');
     let categories = {};
     let isDataSaved = true;
+    let isInputEmpty = false;
+    var infoButton = document.querySelector('.information_button');
 
 
 
@@ -210,36 +213,94 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const response = await fetch(`/projects/${projectId}/get_category/`);
             const data = await response.json();
-
+    
             categories = data.categorys.reduce((acc, cat) => {
-                acc[cat.id] = cat;
+                acc[cat.id] = { ...cat, change: false, created: false };
                 return acc;
             }, {});
-
+    
             renderCategories();
         } catch (error) {
             console.error("Ошибка загрузки категорий:", error);
         }
     }
+    
 
     function renderCategories() {
         categoriesDiv.innerHTML = "";
         layersContainer.innerHTML = "";
         for (const id in categories) {
             const category = categories[id];
-            addToLayers(category.button_name);
-            
+            addToLayers(category.button_name, category.id);
         }
     }
-
-    function addToLayers(buttonName) {
-        const layerElement = document.createElement("div");
+    
+    function addToLayers(buttonName, buttonID) {
+        const layerElement = document.createElement("button");
+        layerElement.onclick = () => ListItems(buttonID); // Используем стрелочную функцию
         layerElement.className = "add_element";
+        layerElement.id = buttonID;
         layerElement.innerHTML = `
             <div class="add_element_name">${buttonName}</div>
         `;
         layersContainer.appendChild(layerElement);
     }
+    
+    function ListItems(data) {
+
+        for (const id in categories) {
+            const category = categories[id];
+            if (category['id'] == data){
+                buttonNameInputRight.value = category['button_name'];
+                buttonNameInputRight.id = data;
+                infoButton.style.display = 'block';
+            }
+        }
+    }
+    window.ListItems = ListItems;
+
+    
+
+    buttonNameInputRight.addEventListener('input', (event) => {
+        for (const id in categories) {
+            const category = categories[id];
+            if (category['id'] == buttonNameInputRight.id) {
+                categories[buttonNameInputRight.id]['button_name'] = event.target.value;
+                categories[buttonNameInputRight.id]['change'] = true;
+
+                const add_element = document.getElementById(buttonNameInputRight.id);
+                add_element.querySelector('div').innerHTML = category['button_name'];
+
+                isDataSaved = false;
+                console.log(categories);
+            }
+        }
+        if (event.target.value.trim() !== '') {
+            isInputEmpty = false; 
+        } else {
+            isInputEmpty = true;
+        }
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('#category-list') && (infoButton.style.display !== 'none') && !event.target.closest('.right_wing')) {
+            infoButton.style.display = 'none';
+        }
+    });
+    
+
+
+    document.addEventListener('click', (event) => {
+        if (isInputEmpty && event.target !== buttonNameInputRight) {
+            event.preventDefault(); 
+            event.stopPropagation(); 
+            alert('Нельзя оставлять пустое место! Заполните поле ввода.');
+            buttonNameInputRight.focus(); 
+        }
+    }, true); 
+    
+
+    
 
     function createCategory(buttonName, message, None, changes, created) {
         const newCategoryId = Date.now();
@@ -264,8 +325,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function sendCreatedCategories() {
         const csrfToken = getCSRFToken();
-        const createdCategories = Object.values(categories).filter(cat => cat.created);
+        const createdCategories = Object.values(categories).filter(cat => cat.created || cat.change);
 
+        
         for (const category of createdCategories) {
             console.log(1232131);
             
@@ -277,9 +339,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                         "X-CSRFToken": csrfToken,
                     },
                     body: JSON.stringify({
+                        category_id: category.id,
                         button_name: category.button_name,
                         parent: category.parent,
                         message: category.message,
+                        change: category.change,
+                        created: category.created,
                     }),
                 });
 
@@ -298,6 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
     }
+
 
     addElementMenuButton.addEventListener("click", () => {
         
