@@ -195,6 +195,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const layersContainer = document.querySelector(".left_pop-up_menu_layers");
     const sendCategoriesButton = document.getElementById("send-categories-btn"); // Кнопка для отправки категорий
     const buttonNameInputRight = document.querySelector('.right_settings_button_name_input');
+    const buttonTextInputRight = document.querySelector('.right_settings_button_text_input');
     let categories = {};
     let isDataSaved = true;
     let isInputEmpty = false;
@@ -253,6 +254,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (category['id'] == data){
                 buttonNameInputRight.value = category['button_name'];
                 buttonNameInputRight.id = data;
+                buttonTextInputRight.value = category['message'];
+                buttonTextInputRight.id = data;
                 infoButton.style.display = 'block';
             }
         }
@@ -282,16 +285,42 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('#category-list') && (infoButton.style.display !== 'none') && !event.target.closest('.right_wing')) {
+    buttonTextInputRight.addEventListener('input', (event) => {
+        for (const id in categories) {
+            const category = categories[id];
+            if (category['id'] == buttonTextInputRight.id) {
+                categories[buttonTextInputRight.id]['message'] = event.target.value;
+                categories[buttonTextInputRight.id]['change'] = true;
+                
+                isDataSaved = false;
+                console.log(categories);
+            }
+        }
+    });
+
+    let isClickInside = false;
+
+    document.addEventListener('mousedown', function (event) {
+        // Проверяем, где произошло начальное нажатие
+        if (event.target.closest('#category-list') || event.target.closest('.right_wing')) {
+            isClickInside = true;
+        } else {
+            isClickInside = false;
+        }
+    });
+    
+    document.addEventListener('mouseup', function (event) {
+        // Если начальное нажатие было вне нужных областей, проверяем отпускание
+        if (!isClickInside && !event.target.closest('#category-list') && !event.target.closest('.right_wing') && infoButton.style.display !== 'none') {
             infoButton.style.display = 'none';
         }
     });
     
+    
 
 
     document.addEventListener('click', (event) => {
-        if (isInputEmpty && event.target !== buttonNameInputRight) {
+        if (isInputEmpty && event.target !== buttonNameInputRight ) {
             event.preventDefault(); 
             event.stopPropagation(); 
             alert('Нельзя оставлять пустое место! Заполните поле ввода.');
