@@ -314,6 +314,8 @@ def new_get_category(request, project_id):
         'message': category.message,
         'owner': category.owner.id,
         'children': list(category.children.values('id', 'button_name', 'message')), 
+        'conditionX': category.conditionX,
+        'conditionY': category.conditionY,
     } for category in categories}
 
     category_list = list(category_dict.values())
@@ -331,6 +333,8 @@ def create_category(request, project_id):
             change = data.get('change')
             created = data.get('created')
             category_id = data.get('category_id')
+            conditionX = data.get('conditionX')
+            conditionY = data.get('conditionY')
             
             if created:
                 if button_name and message:  # Проверяем, что оба значения присутствуют
@@ -342,7 +346,9 @@ def create_category(request, project_id):
                         parent=parent,
                         project_id=project,
                         owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
-                        message=message  # Сохраняем сообщение
+                        message=message,  # Сохраняем сообщение
+                        conditionX=conditionX,
+                        conditionY=conditionY,
                     )
                     print(category)
                     category.save()
@@ -352,8 +358,11 @@ def create_category(request, project_id):
                 try:
                     category = get_object_or_404(Category, id=category_id)
                     data = json.loads(request.body)
+                    print(data)
 
                     # Обновляем поля категории
+                    category.conditionX = data.get('conditionX', category.conditionX)
+                    category.conditionY = data.get('conditionY', category.conditionY)
                     category.button_name = data.get('button_name', category.button_name)
                     category.message = data.get('message', category.message)
 
@@ -374,6 +383,7 @@ def edit_category(request, category_id):
         try:
             category = get_object_or_404(Category, id=category_id)
             data = json.loads(request.body)
+            
 
             # Обновляем поля категории
             category.button_name = data.get('button_name', category.button_name)

@@ -27,6 +27,8 @@ class Category(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='categories', verbose_name="Проект")  # Связь с проектом
     message = models.TextField(blank=True, default='')
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='owned_categories', verbose_name="Владелец")
+    conditionX = models.CharField(max_length=255, default='50%')
+    conditionY = models.CharField(max_length=255, default='50%')
     
     def save(self, *args, **kwargs):
         # Если категория не имеет родителя, значит, она головная

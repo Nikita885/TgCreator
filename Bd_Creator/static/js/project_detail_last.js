@@ -189,19 +189,18 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener("DOMContentLoaded", async () => {
     const projectInfo = document.getElementById('project-info');
     const projectId = projectInfo.getAttribute('data-project-id');
-    const categoriesDiv = document.getElementById("categories");
     const addElementMenuButton = document.querySelector(".add_element_menu_button");
     const buttonNameInput = document.querySelector(".add_element_menu_input");
     const layersContainer = document.querySelector(".left_pop-up_menu_layers");
+    const SceneContainer = document.querySelector(".scene");
     const sendCategoriesButton = document.getElementById("send-categories-btn"); // Кнопка для отправки категорий
     const buttonNameInputRight = document.querySelector('.right_settings_button_name_input');
     const buttonTextInputRight = document.querySelector('.right_settings_button_text_input');
-    let categories = {};
+    window.categories = {};
+    
     let isDataSaved = true;
     let isInputEmpty = false;
     var infoButton = document.querySelector('.information_button');
-
-
 
     window.addEventListener("beforeunload", (event) => {
         if (!isDataSaved) {
@@ -216,7 +215,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
     
             categories = data.categorys.reduce((acc, cat) => {
-                acc[cat.id] = { ...cat, change: false, created: false };
+                acc[cat.id] = { ...cat, change: false, created: false};
                 return acc;
             }, {});
     
@@ -228,11 +227,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     
 
     function renderCategories() {
-        categoriesDiv.innerHTML = "";
+
         layersContainer.innerHTML = "";
+        SceneContainer.innerHTML = "";
         for (const id in categories) {
             const category = categories[id];
             addToLayers(category.button_name, category.id);
+            addToScene(category)
         }
     }
     
@@ -246,9 +247,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
         layersContainer.appendChild(layerElement);
     }
+
+    function addToScene(category) {
+        const layerElement = document.createElement("div");
+        layerElement.onmousedown = () => ListItems(layerElement.id.match(/\d+/)[0]);
+        layerElement.className = "element_to_scene";
+        layerElement.id = category.id +'element';
+        SceneContainer.appendChild(layerElement);
+        layerElement.style.left = category.conditionX;
+        layerElement.style.top = category.conditionY;
+        
+    }
+
     
     function ListItems(data) {
-
         for (const id in categories) {
             const category = categories[id];
             if (category['id'] == data){
@@ -272,10 +284,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 categories[buttonNameInputRight.id]['change'] = true;
 
                 const add_element = document.getElementById(buttonNameInputRight.id);
+
+                
                 add_element.querySelector('div').innerHTML = category['button_name'];
 
                 isDataSaved = false;
-                console.log(categories);
+
             }
         }
         if (event.target.value.trim() !== '') {
@@ -311,10 +325,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     document.addEventListener('mouseup', function (event) {
         // Если начальное нажатие было вне нужных областей, проверяем отпускание
-        if (!isClickInside && !event.target.closest('#category-list') && !event.target.closest('.right_wing') && infoButton.style.display !== 'none') {
+        if (!isClickInside && !event.target.closest('#category-list') && !event.target.closest('.right_wing') && infoButton.style.display !== 'none' && !event.target.closest('.element_to_scene')) {
+            // Если отпускание произошло вне элементов с id 'category-list' и классом 'right_wing', и infoButton видим, скрываем infoButton
             infoButton.style.display = 'none';
         }
     });
+
     
     
 
@@ -331,7 +347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
 
-    function createCategory(buttonName, message, None, changes, created) {
+    function createCategory(buttonName, message, None, changes, created, conditionsX, conditionsY) {
         const newCategoryId = Date.now();
         const newCategory = {
             id: newCategoryId,
@@ -340,6 +356,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             parent: None,
             change: changes,
             created: created,
+            conditionX: conditionsX,
+            conditionY: conditionsY,
         };
 
         categories[newCategoryId] = newCategory;
@@ -374,6 +392,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         message: category.message,
                         change: category.change,
                         created: category.created,
+                        conditionX: category.conditionX,
+                        conditionY: category.conditionY,
                     }),
                 });
 
@@ -398,7 +418,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const buttonName = buttonNameInput.value.trim();
         if (buttonName) {
-            createCategory(buttonName, "123", "None", false, true);
+            createCategory(buttonName, "123", "None", false, true, "50%", "50%");
             buttonNameInput.value = '';
             isDataSaved = false;
         } else {
