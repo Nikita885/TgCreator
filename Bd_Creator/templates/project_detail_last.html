@@ -82,7 +82,19 @@
                 <div class="right_settings_button_text_text">
                     Текст
                 </div>
-                <input class="right_settings_button_text_input" >
+                <textarea class="right_settings_button_text_input" rows="1" maxlength="100" style="width: 32ch;
+                 overflow-y: hidden; resize: none;" oninput="autoResize(this)">
+                 
+                
+                
+                </textarea>
+                <script>
+                    function autoResize(element) {
+                        element.style.height = 'auto';
+                        element.style.height = (element.scrollHeight) + 'px';
+                    }
+                    </script>
+                
             </div>
         </div>
     </div>

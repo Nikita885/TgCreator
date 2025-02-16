@@ -152,4 +152,5 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Применяем трансформации
 		scene.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
 	});
+	
 });
