@@ -93,7 +93,29 @@
                         element.style.height = 'auto';
                         element.style.height = (element.scrollHeight) + 'px';
                     }
-                    </script>
+                    </script> 
+                <div class="right_settings_button_color">
+                    <div class="right_settings_button_color_text">
+                        Цвет
+                    </div>
+                    <input type="color" class="right_settings_button_color_input" onchange="changeElementColor(this)">
+                </div>
+                <script>
+                    function changeElementColor(input) {
+                if (!window.selectedElementId) return;
+            
+                const category = categories[window.selectedElementId];
+                if (!category) return;
+            
+                const element = document.getElementById(category.id + 'element');
+                if (element) {
+                    element.style.backgroundColor = input.value;
+                    category.color = input.value; // Сохраняем цвет в объекте
+                    category.change = true; // Отмечаем изменение
+                }
+            }
+                </script>
+                    
                 
             </div>
         </div>

@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const resizableLeft = document.getElementById('resizable'); // Левое крыло
     const resizableRight = document.querySelector('.right_wing'); // Правое крыло
+    
     let isResizingLeft = false;
     let isResizingRight = false;
     let startX = 0;
@@ -256,7 +257,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         SceneContainer.appendChild(layerElement);
         layerElement.style.left = category.conditionX;
         layerElement.style.top = category.conditionY;
+        layerElement.style.backgroundColor = category.color || "#ffffff"; // Цвет по умолчанию
+
+        layerElement.onclick = () => selectElement(category.id);
+    
+        SceneContainer.appendChild(layerElement);
         
+    }
+    function renderCategories() {
+        layersContainer.innerHTML = "";
+        SceneContainer.innerHTML = "";
+        for (const id in categories) {
+            const category = categories[id];
+            addToLayers(category.button_name, category.id);
+            addToScene(category);
+        }
+    
+        // Восстанавливаем цвет
+        for (const id in categories) {
+            const category = categories[id];
+            const element = document.getElementById(category.id + 'element');
+            if (element) {
+                element.style.backgroundColor = category.color || "#ffffff";
+            }
+        }
     }
 
     
@@ -369,6 +393,36 @@ document.addEventListener("DOMContentLoaded", async () => {
             .find(row => row.startsWith('csrftoken='));
         return csrfCookie ? csrfCookie.split('=')[1] : '';
     }
+    function selectElement(categoryId) {
+        window.selectedElementId = categoryId;
+        
+        // Получаем категорию
+        const category = categories[categoryId]; 
+        if (!category) return;
+    
+        // Обновляем input цвета справа
+        const colorInput = document.querySelector(".right_settings_button_color_input");
+        if (colorInput) {
+            colorInput.value = category.color || "#ffffff";
+        }
+    }
+    
+    
+    function changeElementColor(input) {
+        if (!window.selectedElementId) return;
+    
+        const category = categories[window.selectedElementId];
+        if (!category) return;
+    
+        const element = document.getElementById(category.id + 'element');
+        if (element) {
+            element.style.backgroundColor = input.value;
+            category.color = input.value; // Сохраняем цвет в объекте
+            category.change = true; // Отмечаем изменение
+        }
+    }
+    
+    
 
     async function sendCreatedCategories() {
         const csrfToken = getCSRFToken();
@@ -394,6 +448,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         created: category.created,
                         conditionX: category.conditionX,
                         conditionY: category.conditionY,
+                        color: category.color, // Сохраняем цвет
                     }),
                 });
 
