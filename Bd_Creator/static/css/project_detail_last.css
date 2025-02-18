@@ -101,6 +101,7 @@ input:checked + .slider {
     left: 50%;
     background-color: black;
     transform: translate(-50%,-50%);
+    border-radius: 5px;
 }
 .element_to_scene.selected_category{
     border: 2px solid #5b9640;
@@ -302,6 +303,7 @@ input:checked + .slider {
 }
 .right_settings_button_name,
 .right_settings_button_text{
+
     width: 100%;
     height: 70px;
 

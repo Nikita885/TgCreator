@@ -29,6 +29,7 @@ class Category(models.Model):
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='owned_categories', verbose_name="Владелец")
     conditionX = models.CharField(max_length=255, default='50%')
     conditionY = models.CharField(max_length=255, default='50%')
+    color = models.CharField(max_length=255, default='rgb(0, 0, 0)')
     
     def save(self, *args, **kwargs):
         # Если категория не имеет родителя, значит, она головная

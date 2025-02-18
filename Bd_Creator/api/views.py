@@ -316,6 +316,7 @@ def new_get_category(request, project_id):
         'children': list(category.children.values('id', 'button_name', 'message')), 
         'conditionX': category.conditionX,
         'conditionY': category.conditionY,
+        'color': category.color,
     } for category in categories}
 
     category_list = list(category_dict.values())
@@ -335,6 +336,8 @@ def create_category(request, project_id):
             category_id = data.get('category_id')
             conditionX = data.get('conditionX')
             conditionY = data.get('conditionY')
+            color = data.get('color')
+            
             
             if created:
                 if button_name and message:  # Проверяем, что оба значения присутствуют
@@ -349,7 +352,9 @@ def create_category(request, project_id):
                         message=message,  # Сохраняем сообщение
                         conditionX=conditionX,
                         conditionY=conditionY,
+                        color=color,
                     )
+                    print(category)
                     print(category)
                     category.save()
                     
@@ -365,6 +370,7 @@ def create_category(request, project_id):
                     category.conditionY = data.get('conditionY', category.conditionY)
                     category.button_name = data.get('button_name', category.button_name)
                     category.message = data.get('message', category.message)
+                    category.color = data.get('color', category.color)
 
                     # Сохраняем изменения
                     category.save()

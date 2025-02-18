@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const buttonTextInputRight = document.querySelector('.right_settings_button_text_input');
     window.categories = {};
     
-    let isDataSaved = true;
+    window.isDataSaved = true;
     let isInputEmpty = false;
     var infoButton = document.querySelector('.information_button');
 
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
     
             categories = data.categorys.reduce((acc, cat) => {
-                acc[cat.id] = { ...cat, change: false, created: false, color: "rgb(0, 0, 0)"};
+                acc[cat.id] = { ...cat, change: false, created: false};
                 return acc;
             }, {});
     
@@ -257,7 +257,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         SceneContainer.appendChild(layerElement);
         layerElement.style.left = category.conditionX;
         layerElement.style.top = category.conditionY;
-        layerElement.style.backgroundColor = category.color || "#ffffff"; // Цвет по умолчанию
+        layerElement.style.backgroundColor = category.color; // Цвет по умолчанию
+        console.log(category.color);
+        
 
         layerElement.onclick = () => selectElement(category.id);
     
@@ -269,6 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         SceneContainer.innerHTML = "";
         for (const id in categories) {
             const category = categories[id];
+            console.log(categories);
             addToLayers(category.button_name, category.id);
             addToScene(category);
         }
@@ -339,6 +342,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 categories[buttonTextInputRight.id]['change'] = true;
                 event.target.style.height = 'auto';
                 event.target.style.height = (event.target.scrollHeight) + 'px';
+                isDataSaved = false;
                 
                 isDataSaved = false;
                 console.log(categories);
@@ -429,8 +433,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (element) {
             element.style.backgroundColor = input.value;
             category.color = input.value; // Сохраняем цвет в объекте
-            category.change = true; // Отмечаем изменение
+            console.log(input.value);
             
+            category.change = true; // Отмечаем изменение
+            isDataSaved = false;
             
         }
     }
