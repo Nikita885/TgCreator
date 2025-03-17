@@ -12,7 +12,9 @@
     <script src="{% static 'js/working_field_movement.js' %}"></script> 
 </head>
 <body>
+    
     <div id="project-info" data-project-id="{{ project.id }}"></div>
+
     <div class="working_field" id="workspace">
         <div class="scene" id="scene">
             <div class="element_to_scene"></div>
@@ -85,8 +87,7 @@
                 <div class="right_settings_button_text_text">
                     Текст
                 </div>
-                <textarea class="right_settings_button_text_input" rows="1" maxlength="100" style="width: 32ch;
-                 overflow-y: hidden; resize: none;" oninput="autoResize(this)">
+                <textarea class="right_settings_button_text_input" rows="1" maxlength="100" oninput="autoResize(this)">
 
                 </textarea>
 
@@ -101,7 +102,9 @@
                 <input type="color" class="right_settings_button_color_input" oninput="changeElementColor(this)">
             </div>
 
+
         </div>
     </div>
+
 </body>
 </html>

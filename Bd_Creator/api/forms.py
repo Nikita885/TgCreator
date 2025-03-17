@@ -8,7 +8,7 @@ from .models import Category
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['button_name', 'parent']
+        fields = ['button_name', 'parents', 'project_id', 'message', 'owner', 'conditionX', 'conditionY', 'color']
 
 class CustomAuthenticationForm(AuthenticationForm):
    

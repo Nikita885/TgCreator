@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 	const workspace = document.getElementById("workspace");
 	const scene = document.getElementById("scene");
+	scene.style.transform = `translate(${0}px, ${0}px) scale(${1})`;
 
 	// Запрет на выделение текста
 	workspace.style.userSelect = "none";

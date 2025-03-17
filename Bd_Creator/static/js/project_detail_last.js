@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const buttonTextInputRight = document.querySelector('.right_settings_button_text_input');
     window.categories = {};
     
-    window.isDataSaved = true;
+    let isDataSaved = true;
     let isInputEmpty = false;
     var infoButton = document.querySelector('.information_button');
 
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
     
             categories = data.categorys.reduce((acc, cat) => {
-                acc[cat.id] = { ...cat, change: false, created: false};
+                acc[cat.id] = { ...cat, change: false, created: false, color: "rgb(0, 0, 0)"};
                 return acc;
             }, {});
     
@@ -254,14 +254,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         layerElement.onmousedown = () => ListItems(layerElement.id.match(/\d+/)[0]);
         layerElement.className = "element_to_scene";
         layerElement.id = category.id +'element';
-        SceneContainer.appendChild(layerElement);
+        
         layerElement.style.left = category.conditionX;
         layerElement.style.top = category.conditionY;
-        layerElement.style.backgroundColor = category.color; // Цвет по умолчанию
-        console.log(category.color);
+        layerElement.style.backgroundColor = category.color || "#ffffff"; // Цвет по умолчанию
         
-
         layerElement.onclick = () => selectElement(category.id);
+        layerElement.innerHTML = `
+            <div class="element_name_to_scene_container">
+                <div class="element_to_scene_label_title">Название</div>
+                <div class="element_name_to_scene">${category.name}</div>
+            </div>
+            <buttom class="add_connection_button"> </button>
+        `;
     
         SceneContainer.appendChild(layerElement);
         
@@ -271,7 +276,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         SceneContainer.innerHTML = "";
         for (const id in categories) {
             const category = categories[id];
-            console.log(categories);
             addToLayers(category.button_name, category.id);
             addToScene(category);
         }
@@ -342,7 +346,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 categories[buttonTextInputRight.id]['change'] = true;
                 event.target.style.height = 'auto';
                 event.target.style.height = (event.target.scrollHeight) + 'px';
-                isDataSaved = false;
                 
                 isDataSaved = false;
                 console.log(categories);
@@ -433,10 +436,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (element) {
             element.style.backgroundColor = input.value;
             category.color = input.value; // Сохраняем цвет в объекте
-            console.log(input.value);
-            
             category.change = true; // Отмечаем изменение
-            isDataSaved = false;
+            
             
         }
     }

@@ -23,7 +23,7 @@ class Project(models.Model):
 
 class Category(models.Model):
     button_name = models.CharField(max_length=255)
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
+    parents = models.ManyToManyField('self', symmetrical=False, related_name='children', blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='categories', verbose_name="Проект")  # Связь с проектом
     message = models.TextField(blank=True, default='')
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='owned_categories', verbose_name="Владелец")
@@ -32,24 +32,25 @@ class Category(models.Model):
     color = models.CharField(max_length=255, default='rgb(0, 0, 0)')
     
     def save(self, *args, **kwargs):
-        # Если категория не имеет родителя, значит, она головная
-        if self.parent is None:
-            # Проверяем, есть ли project_id, если нет, создаём новый проект
+        # Save the category first to ensure it has an ID
+        super().save(*args, **kwargs)
+        
+        # If the category has no parents, it is a head category
+        if not self.parents.exists():
+            # If the category has no project_id, create a new project
             if self.project_id is None:
                 self.project_id = self.generate_project_id()
+                super().save(*args, **kwargs)  # Save again to update project_id
 
-            # Сначала сохраняем категорию, чтобы потом можно было добавить её в head_categories
-            super().save(*args, **kwargs)
-
-            # Устанавливаем текущую категорию как головную для проекта (добавляем в head_categories)
+            # Add the category to the project's head categories
             self.project_id.head_categories.add(self)
         else:
-            # Если есть родитель, наследуем project_id от родителя
-            self.project_id = self.parent.project_id
-            super().save(*args, **kwargs)
+            # If the category has parents, inherit the project_id from the first parent
+            self.project_id = self.parents.first().project_id
+            super().save(*args, **kwargs)  # Save again to update project_id
 
-        # Если есть дочерние элементы, устанавливаем им тот же project_id
-        if self.parent is None:
+        # If the category has children, update their project_id
+        if not self.parents.exists():
             for child in self.children.all():
                 child.project_id = self.project_id
                 child.save()
