@@ -6,13 +6,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/stylereg.css">
-    <title>Регистрация</title>
+    <script src="{% static 'js/start.js' %}"></script> 
+    <title>Create an account</title>
     
 </head>
 <body>
+    <div class="intro-text" id="introText">TG CREATOR</div>
     <!--{{ form.email }}-->
-    <div class="register-container">
-        <h2>Регистрация</h2>
+    <div class="register-container" id="registerForm">
+        <h2>Create an account</h2>
     
         <form method="post">
             {% csrf_token %}
@@ -53,8 +55,18 @@
             </div>
             {% endif %}
     
-            <button type="submit">Зарегистрироваться</button>
-            <p class="no-acc">Есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+            <button type="submit"> 
+                <img src="{% static 'svg/reg_black.svg' %}" alt="reg">
+            Register</button>
+            <div class="container_reg">
+                <div class="line"></div>
+                <div class="text">OR CONTINUE WITH</div>
+                <div class="line"></div>
+            </div>
+            <a href="{% url 'login' %}" class="button_no-acc" role="button">
+                <img src="{% static 'svg/login_white.svg' %}" alt="login">
+                Login
+            </a>
         </form>
     </div>
     

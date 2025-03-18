@@ -40,20 +40,30 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Показываем/скрываем форму для создания проекта и меняем текст кнопки
-document.getElementById('add-project-svg').addEventListener('click', function() {
-    // Выполняем ту же логику, что и для кнопки
-    const projectForm = document.getElementById('project-form');
-    const toggleButton = document.getElementById('add-project-button');
 
-    if (projectForm.style.display === 'none' || projectForm.style.display === '') {
-        projectForm.style.display = 'block';
-        toggleButton.textContent = '-';
-    } else {
+let isFormVisible = false;
+
+document.getElementById('add-project-svg').addEventListener('click', function() {
+    const projectForm = document.getElementById('project-form');
+    const plusIcon = document.querySelector('.plus-icon');
+    const minusIcon = document.querySelector('.minus-icon');
+
+    // Меняем состояние видимости формы
+    if (isFormVisible) {
         projectForm.style.display = 'none';
-        toggleButton.textContent = '+';
+        plusIcon.style.display = 'block';  // Показываем иконку плюса
+        minusIcon.style.display = 'none';  // Скрываем иконку минуса
+    } else {
+        projectForm.style.display = 'block';
+        plusIcon.style.display = 'none';  // Скрываем иконку плюса
+        minusIcon.style.display = 'block';  // Показываем иконку минуса
     }
+
+    // Инвертируем состояние
+    isFormVisible = !isFormVisible;
 });
+
+
 
   
   

@@ -7,13 +7,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    <title>Login</title>
+    <script src="{% static 'js/start.js' %}"></script> 
+    <title>Log in account</title>
 
 </head>
 <body>
-    
-    <div class="login-container{% if form.non_field_errors %} error{% endif %}">
-        <h2>Вход</h2>
+    <div class="intro-text" id="introText">TG CREATOR</div>
+    <div class="login-container{% if form.non_field_errors %} error{% endif %}" id="loginForm">
+        <h2>Log in account</h2>
 
         {% if form.non_field_errors %}
         <div class="error-message">
@@ -21,22 +22,36 @@
         </div>
         {% endif %}
 
-
         <form method="post">
             {% csrf_token %}
             <div>
-                {{ form.username }} <!-- Поле для ввода имени пользователя -->
+                {{ form.username }}
             </div>
             <div>
-                {{ form.password }} <!-- Поле для ввода пароля -->
+                {{ form.password }}
             </div>
             <div>
-                {{ form.remember_me }} {{ form.remember_me.label }} <!-- Отображение нового поля -->
+                {{ form.remember_me }} {{ form.remember_me.label }}
             </div>
-            <button type="submit">Войти</button>
-            <p class="no-acc">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
-        </form>
+            <button type="submit">
+                <img src="{% static 'svg/login_black.svg' %}" alt="login">
+                Login
+            </button>
 
+            <div class="container_reg">
+                <div class="line"></div>
+                <div class="text">OR CONTINUE WITH</div>
+                <div class="line"></div>
+            </div>
+
+            <div class="container_no-acc">
+                <a href="{% url 'register' %}" class="button_no-acc" role="button">
+                    <img src="{% static 'svg/reg_white.svg' %}" alt="reg">
+                    Registration
+                </a>
+            </div>
+        </form>
     </div>
+    
 </body>
 </html>
