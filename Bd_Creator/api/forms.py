@@ -48,11 +48,11 @@ class CustomAuthenticationForm(AuthenticationForm):
         # Установка атрибутов placeholder
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Имя пользователя'  # Здесь текст-подсказка
+            'placeholder': 'Login'  # Здесь текст-подсказка
         })
         self.fields['password'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Пароль'  # Здесь текст-подсказка
+            'placeholder': 'Password'  # Здесь текст-подсказка
         })
 class CustomRegistrationForm(UserCreationForm):
     class Meta:
@@ -63,17 +63,17 @@ class CustomRegistrationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Введите имя пользователя'  # Текст-подсказка для имени пользователя
+            'placeholder': 'Name'  # Текст-подсказка для имени пользователя
         })
         self.fields['email'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Введите ваш email'  # Текст-подсказка для email
+            'placeholder': 'E-mail'  # Текст-подсказка для email
         })
         self.fields['password1'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Введите пароль'  # Текст-подсказка для пароля
+            'placeholder': 'Password'  # Текст-подсказка для пароля
         })
         self.fields['password2'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Подтвердите пароль'  # Текст-подсказка для подтверждения пароля
+            'placeholder': 'Confirm password'  # Текст-подсказка для подтверждения пароля
         })

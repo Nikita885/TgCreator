@@ -9,24 +9,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>Заголовок страницы</title>
+    <title>projects</title>
 </head>
 <body>
     
         
     <div class="left_wing">
         <div class="left_menu">
-    
-            
             <div class="left_menu_block_2" id="add-project-svg">
-                <img class="layers-icon" src="{% static 'svg/plus_b41v4ulenm5h.svg' %}" alt="Add">
+                <!-- Иконка плюса -->
+                <img class="layers-icon plus-icon" src="{% static 'svg/plus_b41v4ulenm5h.svg' %}" alt="Add">
+                <!-- Иконка минуса (спрятана по умолчанию) -->
+                <img class="layers-icon minus-icon" src="{% static 'svg/minus_icon.svg' %}" alt="Minus" style="display: none;">
             </div>
-    
-          
+        
             <a method="post" id="logout-form" href="{% url 'logout' %}" type="submit" class="left_menu_block exit">
                 <img class="layers-icon" src="{% static 'svg/exit_kc3ogyqrcwqs.svg' %}" alt="Logout">
             </a>
-    
         </div>
     </div>
         
@@ -46,10 +45,10 @@
     <!-- Форма для создания проекта, по умолчанию скрыта -->
     <div id="project-form" style="display: none;">
         
-        <input type="text" id="project-name" name="name" placeholder="Введите имя проекта">
+        <input type="text" id="project-name" name="name" placeholder="Enter the project name">
 
         
-        <input type="text" id="tg-token" name="tg_token" placeholder="Введите TG токен">
+        <input type="text" id="tg-token" name="tg_token" placeholder="TG token">
 
         <button id="submit-project">Создать проект</button>
     </div>

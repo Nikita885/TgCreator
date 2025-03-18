@@ -1,5 +1,6 @@
+
 body {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgb(0, 0, 0));
+    background: rgb(16, 16, 17);
     color: white;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     display: flex;
@@ -9,31 +10,39 @@ body {
     margin: 0;
     overflow: hidden;
 }
-@keyframes fadeIn {
-from {
+
+.intro-text {
+    font-size: 40px;
+    font-weight: bold;
+    position: absolute;
+    transition: opacity 1s ease-in-out;
+}
+
+.hidden {
     opacity: 0;
-    transform: translateY(-13px);
-    }
-to {
-    opacity: 1;
-    transform: translateY(0);
-    }
 }
 
 .login-container {
-    background-color: rgba(4, 109, 4, 0.938);
+    background-color: rgba(4, 109, 4, 0);
     padding: 20px;
     border-radius: 8px;
-    width: 300px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 35px rgba(0, 255, 0, 0.5);
-    transition: transform 0.7s ease-in-out, padding 0.7s ease-in-out;
-    animation: fadeIn 0.7s ease-in-out;
+    width: 400px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+}
+
+.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 h2 {
-    font-size: 2em;
+    font-size: 1.7em;
     text-align: center; 
-    margin-left: 10px; 
+    margin-left: 10px;
+    color: rgb(219, 218, 218);
+    padding-bottom: 15px;
 }
 
 .error-message {
@@ -55,54 +64,55 @@ h2 {
 }
 
 input {
-    background-color: #0b570bef;
-    color: rgb(194, 194, 194);
-    border: 2px solid rgba(211, 211, 211, 0.5); 
-    border-radius: 20px; 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    width: 100%;  /* Ширина 80% от родительского контейнера */
+    height: 15px; /* Фиксированная высота */
+    background-color: rgb(17, 17, 17); /* Цвет фона, как у body */
+    color: rgb(161, 161, 161);
+    border: 1px solid rgb(82, 82, 82); /* Белая обводка */
+    border-radius: 8px; /* Квадратная форма */
     outline: none;
-    padding: 5px;
+    padding: 10px;
     width: 81%;
     margin-bottom: 20px;
     margin-left: 29px;
     font-size: 16px;
-    text-align: center;
-}   
+   
+}
+
 input:-webkit-autofill {
     -webkit-text-fill-color: white !important;
-    -webkit-box-shadow: 0 0 0px 1000px #0b570bef inset !important; 
+    -webkit-box-shadow: 0 0 0px 1000px rgb(17, 17, 17) inset !important; 
     transition: background-color 5000s ease-in-out 0s; 
 }
+
 input::placeholder {
     color: rgba(255, 255, 255, 0.7);    
 }
 
-button {
 
-    align-self: center;
-    color: rgb(245, 243, 243);
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-    margin-left: 35px;
-    display: block;
-    width: 81%;
-    background: linear-gradient(45deg, #2f502f, #09440b, #2f502f);
-    border-radius: 25px; 
-    padding: 10px 20px;
-    box-shadow: 0 4px 8px rgba(15, 14, 14, 0.2);
-    transition: background-color 0.3s, transform 0.2s;
+button {
+    background-color: rgb(177, 177, 177);
+    color: rgb(0, 0, 0);
+    border: 1px solid rgb(122, 122, 122); /* Белая обводка */
+    border-radius: 8px; /* Квадратная форма */
+    outline: none;
+    padding: 10px;
+    width: 87%;
+    height: 100%;
+    margin-bottom: 20px;
+    margin-left: 29px;
+    font-size: 19px;
+    text-align: center;
+    
 }
 
 button:hover {
-    background-color: lightgray;
-    transform: scale(1.05);
-
+    background-color: rgb(255, 255, 255);
+    transition: background-color 0.6s ease, color 0.6s ease;
 }
 
 @keyframes shake {
-    0% { transform: translate(0); }
+    0% { transform: translate(0); } 
     25% { transform: translate(-2px, 0); }
     50% { transform: translate(2px, 0); }
     75% { transform: translate(-2px, 0); }
@@ -122,4 +132,49 @@ a:hover {
     color: rgb(255, 255, 255);
     text-align: center;
     margin-top: 10px; 
+}
+.container_reg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.line {
+    flex-grow: 1;
+    height: 2px;
+    background-color: rgb(122, 122, 122); 
+    margin: 0 10px; 
+}
+
+.text {
+    font-size: 16px;
+    color: rgb(161, 161, 161);
+    white-space: nowrap;
+}
+.container_no-acc{
+    display: flex; 
+    flex-direction: column; 
+    width: 100%;
+}
+.button_no-acc {
+    width: 87%;  
+    background-color: rgb(16, 16, 17);
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(122, 122, 122);
+    border-radius: 8px;
+    outline: none;
+    padding: 10px;
+    margin-bottom: 20px;
+    margin-left: 29px;
+    font-size: 19px;
+    text-align: center;
+    box-sizing: border-box;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.button_no-acc:hover {
+    background-color: rgb(27, 27, 27);
+    
 }
