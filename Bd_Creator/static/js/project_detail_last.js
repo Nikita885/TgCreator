@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
     
             categories = data.categorys.reduce((acc, cat) => {
-                acc[cat.id] = { ...cat, change: false, created: false};
+                acc[cat.id] = { ...cat, change: false, created: false, color: "rgb(0, 0, 0)"};
                 return acc;
             }, {});
     
@@ -254,12 +254,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         layerElement.onmousedown = () => ListItems(layerElement.id.match(/\d+/)[0]);
         layerElement.className = "element_to_scene";
         layerElement.id = category.id +'element';
-        SceneContainer.appendChild(layerElement);
+        
         layerElement.style.left = category.conditionX;
         layerElement.style.top = category.conditionY;
         layerElement.style.backgroundColor = category.color || "#ffffff"; // Цвет по умолчанию
-
+        
         layerElement.onclick = () => selectElement(category.id);
+        layerElement.innerHTML = `
+            <div class="element_name_to_scene_container">
+                <div class="element_to_scene_label_title">Название</div>
+                <div class="element_name_to_scene">${category.name}</div>
+            </div>
+            <buttom class="add_connection_button"> </button>
+        `;
     
         SceneContainer.appendChild(layerElement);
         
@@ -285,14 +292,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
     function ListItems(data) {
+        
         for (const id in categories) {
             const category = categories[id];
             if (category['id'] == data){
                 buttonNameInputRight.value = category['button_name'];
                 buttonNameInputRight.id = data;
                 buttonTextInputRight.value = category['message'];
+                
+
                 buttonTextInputRight.id = data;
                 infoButton.style.display = 'block';
+                buttonTextInputRight.style.height = 'auto';
+                buttonTextInputRight.style.height = (buttonTextInputRight.scrollHeight) + 'px';
+
             }
         }
     }
@@ -306,6 +319,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (category['id'] == buttonNameInputRight.id) {
                 categories[buttonNameInputRight.id]['button_name'] = event.target.value;
                 categories[buttonNameInputRight.id]['change'] = true;
+
+                
 
                 const add_element = document.getElementById(buttonNameInputRight.id);
 
@@ -329,6 +344,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (category['id'] == buttonTextInputRight.id) {
                 categories[buttonTextInputRight.id]['message'] = event.target.value;
                 categories[buttonTextInputRight.id]['change'] = true;
+                event.target.style.height = 'auto';
+                event.target.style.height = (event.target.scrollHeight) + 'px';
                 
                 isDataSaved = false;
                 console.log(categories);
@@ -371,7 +388,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
 
-    function createCategory(buttonName, message, None, changes, created, conditionsX, conditionsY) {
+    function createCategory(buttonName, message, None, changes, created, conditionsX, conditionsY, colors) {
         const newCategoryId = Date.now();
         const newCategory = {
             id: newCategoryId,
@@ -382,6 +399,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             created: created,
             conditionX: conditionsX,
             conditionY: conditionsY,
+            color: colors,
         };
 
         categories[newCategoryId] = newCategory;
@@ -407,8 +425,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
     
-    
     function changeElementColor(input) {
+        console.log(123123123);
         if (!window.selectedElementId) return;
     
         const category = categories[window.selectedElementId];
@@ -419,8 +437,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             element.style.backgroundColor = input.value;
             category.color = input.value; // Сохраняем цвет в объекте
             category.change = true; // Отмечаем изменение
+            
+            
         }
     }
+    window.changeElementColor = changeElementColor;
     
     
 
@@ -473,7 +494,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const buttonName = buttonNameInput.value.trim();
         if (buttonName) {
-            createCategory(buttonName, "123", "None", false, true, "50%", "50%");
+            createCategory(buttonName, "123", "None", false, true, "50%", "50%", "rgb(0, 0, 0)");
             buttonNameInput.value = '';
             isDataSaved = false;
         } else {

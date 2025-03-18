@@ -309,13 +309,14 @@ def new_get_category(request, project_id):
     category_dict = {category.id: {
         'id': category.id,
         'button_name': category.button_name,
-        'parent': category.parent.id if category.parent else None,
+        'parent': category.parents.first().id if category.parents.exists() else None,  # Correct handling of parents
         'project_id': category.project_id.id,
         'message': category.message,
         'owner': category.owner.id,
         'children': list(category.children.values('id', 'button_name', 'message')), 
         'conditionX': category.conditionX,
         'conditionY': category.conditionY,
+        'color': category.color,
     } for category in categories}
 
     category_list = list(category_dict.values())
@@ -326,7 +327,7 @@ def create_category(request, project_id):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            
+            print(data)
             button_name = data.get('button_name')
             parent_id = data.get('parent')
             message = data.get('message')  # Получаем сообщение из запроса
@@ -335,23 +336,31 @@ def create_category(request, project_id):
             category_id = data.get('category_id')
             conditionX = data.get('conditionX')
             conditionY = data.get('conditionY')
+            color = data.get('color')
+            
             
             if created:
                 if button_name and message:  # Проверяем, что оба значения присутствуют
                     parent = Category.objects.get(id=parent_id) if parent_id != "None" else None
+                    
                     project = Project.objects.get(id=project_id)
                     
-                    category = Category.objects.create(
+                    category = Category(
                         button_name=button_name,
-                        parent=parent,
                         project_id=project,
                         owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
                         message=message,  # Сохраняем сообщение
                         conditionX=conditionX,
                         conditionY=conditionY,
+                        color=color,
                     )
+                    category.save()  # Save the category object before adding to many-to-many relationship
+                    if parent:
+                        category.parents.add(parent)
+                        
+                        category.save()  # Save again after setting the parent
+                        
                     print(category)
-                    category.save()
                     
                     return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
             if change:
@@ -365,6 +374,7 @@ def create_category(request, project_id):
                     category.conditionY = data.get('conditionY', category.conditionY)
                     category.button_name = data.get('button_name', category.button_name)
                     category.message = data.get('message', category.message)
+                    category.color = data.get('color', category.color)
 
                     # Сохраняем изменения
                     category.save()
