@@ -383,6 +383,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert('Нельзя оставлять пустое место! Заполните поле ввода.');
             buttonNameInputRight.focus(); 
         }
+        
     }, true); 
     
 
