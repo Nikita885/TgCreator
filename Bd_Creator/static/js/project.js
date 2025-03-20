@@ -108,3 +108,17 @@ document.getElementById('submit-project').addEventListener('click', function(eve
     }
 });
 
+document.addEventListener('click', function(event) {
+    const projectForm = document.getElementById('project-form');
+    const addProjectSvg = document.getElementById('add-project-svg');
+    const plusIcon = document.querySelector('.plus-icon');
+    const minusIcon = document.querySelector('.minus-icon');
+
+    
+    if (!addProjectSvg.contains(event.target) && !projectForm.contains(event.target)) {
+        projectForm.style.display = 'none';
+        plusIcon.style.display = 'block'; 
+        minusIcon.style.display = 'none';
+        isFormVisible = false;
+    }
+});
