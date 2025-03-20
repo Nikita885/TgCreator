@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
     
             categories = data.categorys.reduce((acc, cat) => {
-                acc[cat.id] = { ...cat, change: false, created: false, color: "rgb(0, 0, 0)"};
+                acc[cat.id] = { ...cat, change: false, created: false};
                 return acc;
             }, {});
     
@@ -225,16 +225,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Ошибка загрузки категорий:", error);
         }
     }
-    
+
 
     function renderCategories() {
-
         layersContainer.innerHTML = "";
         SceneContainer.innerHTML = "";
         for (const id in categories) {
             const category = categories[id];
             addToLayers(category.button_name, category.id);
             addToScene(category)
+        }
+
+        for (const id in categories) {
+            const category = categories[id];
+            const element = document.getElementById(category.id + 'element');
+            if (element) {
+                element.style.backgroundColor = category.color || "#ffffff";
+            }
         }
     }
     
@@ -263,7 +270,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         layerElement.innerHTML = `
             <div class="element_name_to_scene_container">
                 <div class="element_to_scene_label_title">Название</div>
-                <div class="element_name_to_scene">${category.name}</div>
+                <div class="element_name_to_scene">${category.button_name}</div>
             </div>
             <buttom class="add_connection_button"> </button>
         `;
@@ -271,24 +278,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         SceneContainer.appendChild(layerElement);
         
     }
-    function renderCategories() {
-        layersContainer.innerHTML = "";
-        SceneContainer.innerHTML = "";
-        for (const id in categories) {
-            const category = categories[id];
-            addToLayers(category.button_name, category.id);
-            addToScene(category);
-        }
-    
-        // Восстанавливаем цвет
-        for (const id in categories) {
-            const category = categories[id];
-            const element = document.getElementById(category.id + 'element');
-            if (element) {
-                element.style.backgroundColor = category.color || "#ffffff";
-            }
-        }
-    }
+
 
     
     function ListItems(data) {
@@ -323,9 +313,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 
 
                 const add_element = document.getElementById(buttonNameInputRight.id);
-
-                
                 add_element.querySelector('div').innerHTML = category['button_name'];
+
+                const add_element_to_scene = document.getElementById(buttonNameInputRight.id + 'element');
+                add_element_to_scene.querySelector('.element_name_to_scene').textContent = category['button_name'];
 
                 isDataSaved = false;
 
@@ -383,7 +374,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert('Нельзя оставлять пустое место! Заполните поле ввода.');
             buttonNameInputRight.focus(); 
         }
-        
+
     }, true); 
     
 
@@ -417,12 +408,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         // Получаем категорию
         const category = categories[categoryId]; 
+        console.log(categories[categoryId]);
         if (!category) return;
     
         // Обновляем input цвета справа
         const colorInput = document.querySelector(".right_settings_button_color_input");
         if (colorInput) {
             colorInput.value = category.color || "#ffffff";
+            
+            
         }
     }
     
