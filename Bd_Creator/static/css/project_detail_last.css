@@ -30,7 +30,7 @@ html {
     
 }
 body {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgb(0, 0, 0));
+    background: rgb(16, 16, 17);
 
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     display: flex;
@@ -142,7 +142,7 @@ input:checked + .slider {
 }
 
 .left_menu {
-    background: linear-gradient(180deg, #181818, #2c2c2c);
+    background: linear-gradient(180deg, rgb(16, 16, 17), #202020, rgb(16, 16, 17));
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: inset -3px 0 8px rgba(0, 0, 0, 0.5);
 }
