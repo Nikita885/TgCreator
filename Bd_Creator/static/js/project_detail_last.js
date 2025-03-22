@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let offsetStartRight = 0; // Смещение для правого крыла
     const minWidth = 250; // Минимальная ширина для левого и правого крыла в пикселях
     const maxWidth = window.innerWidth / 2.02; // Максимальная ширина для левого и правого крыла - половина экрана
+    
 
     // Обработчик для левого крыла
     if (resizableLeft) {
@@ -202,6 +203,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let isDataSaved = true;
     let isInputEmpty = false;
     var infoButton = document.querySelector('.information_button');
+    let activeID = [];
 
     window.addEventListener("beforeunload", (event) => {
         if (!isDataSaved) {
@@ -272,7 +274,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div class="element_to_scene_label_title">Название</div>
                 <div class="element_name_to_scene">${category.button_name}</div>
             </div>
-            <buttom class="add_connection_button"> </button>
+            <button class="add_connection_button" onclick="сreatingСonnection(${category.id})"> </button>
         `;
     
         SceneContainer.appendChild(layerElement);
@@ -282,10 +284,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
     function ListItems(data) {
+
         
         for (const id in categories) {
             const category = categories[id];
             if (category['id'] == data){
+                document.querySelectorAll(".selected_category").forEach((elem) => {
+                    elem.className = elem.className.replace(" selected_category", "");
+                });
+                const element = document.getElementById(data + "element");
+                element.className = "element_to_scene selected_category"; 
+                
+                
                 buttonNameInputRight.value = category['button_name'];
                 buttonNameInputRight.id = data;
                 buttonTextInputRight.value = category['message'];
@@ -380,13 +390,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
 
-    function createCategory(buttonName, message, None, changes, created, conditionsX, conditionsY, colors) {
+    function createCategory(buttonName, message, parent, changes, created, conditionsX, conditionsY, colors) {
         const newCategoryId = Date.now();
         const newCategory = {
             id: newCategoryId,
             button_name: buttonName,
             message: message,
-            parent: None,
+            parent: parent,
             change: changes,
             created: created,
             conditionX: conditionsX,
@@ -489,7 +499,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const buttonName = buttonNameInput.value.trim();
         if (buttonName) {
-            createCategory(buttonName, "123", "None", false, true, "50%", "50%", "rgb(0, 0, 0)");
+            createCategory(buttonName, "123", [], false, true, "50%", "50%", "rgb(0, 0, 0)");
             buttonNameInput.value = '';
             isDataSaved = false;
         } else {
@@ -498,6 +508,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     sendCategoriesButton.addEventListener("click", sendCreatedCategories);
+
+
+
+    function сreatingСonnection(ID){
+        if (activeID['start']){
+            if(activeID['start']!=ID){
+                activeID['end']=ID;
+                categories[ID].parent.push(activeID['start'])   
+                activeID['end', 'start']='';
+                
+            }
+
+        }
+        else{
+            activeID['start']=ID;
+        }
+    }
+    window.сreatingСonnection = сreatingСonnection;
 
     loadCategories();
 });

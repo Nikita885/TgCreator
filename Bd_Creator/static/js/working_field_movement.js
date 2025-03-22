@@ -139,7 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			const element = e.target.closest('.element_to_scene');
 			elementSelected = element.id;
 			element.className = "element_to_scene selected_category"; 
-			activeElement = false;
+			if (!e.target.classList.contains('add_connection_button')){
+				activeElement = false;
+			}
+			
 			
 			
 			// Сохраняем смещение между точкой клика и левым верхним углом элемента

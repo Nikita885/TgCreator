@@ -24,6 +24,7 @@ class Project(models.Model):
 class Category(models.Model):
     button_name = models.CharField(max_length=255)
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children', blank=True)
+    parentMas = models.ManyToManyField('self', symmetrical=False, related_name='childrenMas', blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='categories', verbose_name="Проект")  # Связь с проектом
     message = models.TextField(blank=True, default='')
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='owned_categories', verbose_name="Владелец")
