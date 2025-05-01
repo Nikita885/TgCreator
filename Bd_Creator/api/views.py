@@ -309,11 +309,11 @@ def new_get_category(request, project_id):
     category_dict = {category.id: {
         'id': category.id,
         'button_name': category.button_name,
-        'parent': list(category.parentMas.values_list('id', flat=True)) if category.parentMas.exists() else [],  # Correct handling of parents
+        'parent': list(category.parentMas.values_list('id', flat=True)) if category.parentMas.exists() else [],
         'project_id': category.project_id.id,
         'message': category.message,
         'owner': category.owner.id,
-        'children': list(category.children.values('id', 'button_name', 'message')), 
+        'children': list(category.children.values_list('id', flat=True)),  # Преобразуем в список ID
         'conditionX': category.conditionX,
         'conditionY': category.conditionY,
         'color': category.color,
@@ -327,58 +327,59 @@ def create_category(request, project_id):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print(data)
             button_name = data.get('button_name')
             parentMas = data.get('parent')
-            print(parentMas)
-            message = data.get('message')  # Получаем сообщение из запроса
+            message = data.get('message')
             change = data.get('change')
             created = data.get('created')
             category_id = data.get('category_id')
             conditionX = data.get('conditionX')
             conditionY = data.get('conditionY')
             color = data.get('color')
-            
-            
-            if created:
-                if button_name and message:  # Проверяем, что оба значения присутствуют
-                    if parentMas:
-                        for parent_id in parentMas:
-                            parent = Category.objects.get(id=parent_id)
-                            category.parents.add(parent)
-                            
+            children = data.get('children')
 
-                    
+            if created:
+                if button_name and message:
                     project = Project.objects.get(id=project_id)
-                    
+
                     category = Category(
                         button_name=button_name,
                         project_id=project,
-                        owner_id=request.idusers,  # Используем request.user.id для владельца или (idusers)
-                        message=message,  # Сохраняем сообщение
+                        owner_id=request.idusers,
+                        message=message,
                         conditionX=conditionX,
                         conditionY=conditionY,
                         color=color,
                     )
-                    category.save()  # Save the category object before adding to many-to-many relationship
+                    category.save()  # Save the category instance first
+
+                    if parentMas:
+                        category.parentMas.set(parentMas)  # Set parent relationships
+
+                    if children:
+                        category.children.set(children)  # Set children relationships
 
                     return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
+
             if change:
                 try:
                     category = get_object_or_404(Category, id=category_id)
-                    data = json.loads(request.body)
+                    print(data)
 
-                    # Обновляем поля категории
                     category.conditionX = data.get('conditionX', category.conditionX)
                     category.conditionY = data.get('conditionY', category.conditionY)
                     category.button_name = data.get('button_name', category.button_name)
                     category.message = data.get('message', category.message)
                     category.color = data.get('color', category.color)
+
                     parentMas = data.get('parent')
                     if parentMas:
                         category.parentMas.set(parentMas)
 
-                    # Сохраняем изменения
+                    children = data.get('children')
+                    if children:
+                        category.children.set(children)
+
                     category.save()
 
                     return JsonResponse({'success': True, 'message': 'Категория обновлена успешно.'})

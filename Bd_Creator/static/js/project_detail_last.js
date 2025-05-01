@@ -269,16 +269,46 @@ document.addEventListener("DOMContentLoaded", async () => {
         layerElement.style.backgroundColor = category.color || "#ffffff"; // Цвет по умолчанию
         
         layerElement.onclick = () => selectElement(category.id);
-        layerElement.innerHTML = `
+
+        let html = `
             <div class="element_name_to_scene_container">
-                <div class="element_to_scene_label_title">Название</div>
-                <div class="element_name_to_scene">${category.button_name}</div>
-            </div>
-            <button class="add_connection_button" onclick="сreatingСonnection(${category.id})"> </button>
-        `;
-    
-        SceneContainer.appendChild(layerElement);
+                <div class="element_block_to_scene">
+                    <div class="element_to_scene_label_title">Название:</div>
+                    <div class="element_name_to_scene">${category.button_name}</div>
+                </div>
         
+
+                <div class="element_block_communications" id="${category.id}elementchildblock"> >
+                    <div class="element_block_to_scene">
+                        <div class="element_to_scene_label_title">Связи:</div>
+                    </div>`;
+
+        for (const childId of category.children) {
+            html += `
+                <div class="element_block_to_scene">
+                    <div class="element_name_to_scene" style="text-align: left;">${categories[childId].button_name}</div>
+                </div>`;
+        }
+        for (const parentId of category.parent) {
+            html += `
+                <div class="element_block_to_scene">
+                    <div class="element_name_to_scene" style="text-align: left;">${categories[parentId].button_name}</div>
+                </div>`;
+        }
+        
+        html += `
+                </div>
+            </div>
+            <button class="add_connection_button" onclick="сreatingСonnection(${category.id})"></button>`;
+        
+        layerElement.innerHTML = html;
+            
+        SceneContainer.appendChild(layerElement);
+        const element = document.getElementById(category.id + 'elementchildblock');   
+        if (category.children.length == 0 && category.parent.length == 0) {
+            element.style.display = 'none';
+        }
+
     }
 
 
@@ -390,7 +420,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
 
-    function createCategory(buttonName, message, parent, changes, created, conditionsX, conditionsY, colors) {
+    function createCategory(buttonName, message, parent, changes, created, conditionsX, conditionsY, colors, childrens) {
         const newCategoryId = Date.now();
         const newCategory = {
             id: newCategoryId,
@@ -402,6 +432,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             conditionX: conditionsX,
             conditionY: conditionsY,
             color: colors,
+            children: childrens,
         };
 
         categories[newCategoryId] = newCategory;
@@ -475,6 +506,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         conditionX: category.conditionX,
                         conditionY: category.conditionY,
                         color: category.color, // Сохраняем цвет
+                        children: category.children
                     }),
                 });
 
@@ -499,7 +531,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const buttonName = buttonNameInput.value.trim();
         if (buttonName) {
-            createCategory(buttonName, "123", [], false, true, "50%", "50%", "rgb(0, 0, 0)");
+            createCategory(buttonName, "123", [], false, true, "50%", "50%", "rgb(0, 0, 0)", []);
             buttonNameInput.value = '';
             isDataSaved = false;
         } else {
@@ -511,18 +543,114 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
-    function сreatingСonnection(ID){
-        if (activeID['start']){
-            if(activeID['start']!=ID){
-                activeID['end']=ID;
-                categories[ID].parent.push(activeID['start'])   
-                activeID['end', 'start']='';
+    function сreatingСonnection(ID) {
+        if (activeID['start']) {
+            if (activeID['start'] != ID) {
+                if (!categories[ID].parent.includes(activeID['start']) && !categories[activeID['start']].children.includes(ID)) {
+                    categories[ID].parent.push(activeID['start']);
+                    categories[activeID['start']].children.push(ID);
+                    categories[ID].change = true;
+                    categories[activeID['start']].change = true;
+                    isDataSaved = false;
+
+                    const elementchildblock1 = document.getElementById(ID + 'elementchildblock');
+                    const elementchildblock2 = document.getElementById(activeID['start'] + 'elementchildblock');
+                    if (elementchildblock1 && elementchildblock2) {
+                        elementchildblock1.innerHTML += `
+                            <div class="element_block_to_scene">
+                                <div class="element_name_to_scene" style="text-align: left;">${categories[activeID['start']].button_name}</div>
+                            </div>`;
+                        
+                        elementchildblock2.innerHTML += `
+                            <div class="element_block_to_scene">
+                                <div class="element_name_to_scene" style="text-align: left;">${categories[ID].button_name}</div>
+                            </div>`;
+                    }
+                    if (elementchildblock1.style.display === 'none') {
+                        elementchildblock1.style.display = 'block';
+                    }
+                    if (elementchildblock2.style.display === 'none') {
+                        elementchildblock2.style.display = 'block';
+                    }
+
+                    console.log(activeID,111111111111111);
+                    
+                }
+                
+                
                 
             }
+            const animConnectionElement = document.getElementById(`anim_connection_to_scene${activeID['start']}`);
+            if (animConnectionElement) {
+                animConnectionElement.remove();
 
-        }
-        else{
-            activeID['start']=ID;
+            }
+            activeID['end'] = '';
+            activeID['start'] = '';
+        } else {
+            const element = document.getElementById(ID + 'element');
+
+
+            if (element) {
+                element.innerHTML += `
+                    <div class="anim_connection_to_scene" id="anim_connection_to_scene${ID}">
+                        <div id="line${ID}" style="position:absolute; height:2px; background:white;"></div>
+                        <div id="mobile_line${ID}" style="position:absolute; height:2px; background:white;"></div>
+                    </div>
+                `;
+
+                const x0 = element.offsetWidth / 2;
+                const y0 = element.offsetHeight;
+
+                const x1 = x0;
+                const y1 = y0 + 20;
+
+                const dx = x1 - x0;
+                const dy = y1 - y0;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                const line = document.getElementById("line" + ID);
+                line.style.width = `${length}px`;
+                line.style.left = `${x0}px`;
+                line.style.top = `${y0}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                line.style.transformOrigin = '0 0';
+                line.style.zIndex = '-1'; // Ensure it appears above other elements
+
+
+                let mobile_line = document.getElementById("mobile_line" + ID);
+
+
+                function updateMobileLine(event) {
+                    const x0Mobile = x1;
+                    const y0Mobile = y1;
+                    const x1Mobile = event.clientX-element.getBoundingClientRect().left;
+                    const y1Mobile = event.clientY-element.getBoundingClientRect().top;
+
+                    const dxMobile = x1Mobile - x0Mobile;
+                    const dyMobile = y1Mobile - y0Mobile;
+                    const lengthMobile = Math.sqrt(dxMobile * dxMobile + dyMobile * dyMobile);
+                    const angleMobile = Math.atan2(dyMobile, dxMobile) * (180 / Math.PI);
+
+                    mobile_line.style.width = `${lengthMobile}px`;
+                    mobile_line.style.left = `${x0Mobile}px`;
+                    mobile_line.style.top = `${y0Mobile}px`;
+                    mobile_line.style.transform = `rotate(${angleMobile}deg)`;
+                    mobile_line.style.transformOrigin = '0 0';
+
+                    
+
+                }
+
+                document.addEventListener('mousemove', updateMobileLine);
+
+                document.addEventListener('mouseup', () => {
+                    document.removeEventListener('mousemove', updateMobileLine);
+                }, { once: true });
+            }
+
+            activeID['start'] = ID;
         }
     }
     window.сreatingСonnection = сreatingСonnection;

@@ -23,7 +23,7 @@ class Project(models.Model):
 
 class Category(models.Model):
     button_name = models.CharField(max_length=255)
-    parents = models.ManyToManyField('self', symmetrical=False, related_name='children', blank=True)
+    parents = models.ManyToManyField('self', symmetrical=False, related_name='parent', blank=True)
     parentMas = models.ManyToManyField('self', symmetrical=False, related_name='childrenMas', blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='categories', verbose_name="Проект")  # Связь с проектом
     message = models.TextField(blank=True, default='')
@@ -31,30 +31,8 @@ class Category(models.Model):
     conditionX = models.CharField(max_length=255, default='50%')
     conditionY = models.CharField(max_length=255, default='50%')
     color = models.CharField(max_length=255, default='rgb(0, 0, 0)')
-    
-    def save(self, *args, **kwargs):
-        # Save the category first to ensure it has an ID
-        super().save(*args, **kwargs)
-        
-        # If the category has no parents, it is a head category
-        if not self.parents.exists():
-            # If the category has no project_id, create a new project
-            if self.project_id is None:
-                self.project_id = self.generate_project_id()
-                super().save(*args, **kwargs)  # Save again to update project_id
+    children = models.ManyToManyField('self', symmetrical=False, related_name='childrens', blank=True)
 
-            # Add the category to the project's head categories
-            self.project_id.head_categories.add(self)
-        else:
-            # If the category has parents, inherit the project_id from the first parent
-            self.project_id = self.parents.first().project_id
-            super().save(*args, **kwargs)  # Save again to update project_id
-
-        # If the category has children, update their project_id
-        if not self.parents.exists():
-            for child in self.children.all():
-                child.project_id = self.project_id
-                child.save()
 
     def generate_project_id(self):
         # Создаём новый проект и возвращаем его
