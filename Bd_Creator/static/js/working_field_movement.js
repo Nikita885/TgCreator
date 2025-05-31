@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	let isPanning = false;
 	let startX = 0, startY = 0;
 	let offsetX = 0, offsetY = 0;
-	let scale = 1; // Текущий масштаб сцены
+	window.scale = 1; // Текущий масштаб сцены
 	let activeElement = true;
 	let elementSelected = null;
 	let categoriesCoordinat = {};

@@ -10,6 +10,7 @@
     
     <script src="{% static 'js/project_detail_last.js' %}"></script> 
     <script src="{% static 'js/working_field_movement.js' %}"></script> 
+    <script src="{% static 'js/connections_visual_part.js' %}"></script> 
 </head>
 <body>
     
@@ -107,4 +108,7 @@
     </div>
 
 </body>
+<svg id="connections-layer"
+     style="position:fixed;inset:0;pointer-events:none;z-index:9999;width:100%;height:100%;">
+</svg>
 </html>

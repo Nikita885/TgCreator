@@ -204,6 +204,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let isInputEmpty = false;
     var infoButton = document.querySelector('.information_button');
     let activeID = [];
+    window.childrenID = [];
 
     window.addEventListener("beforeunload", (event) => {
         if (!isDataSaved) {
@@ -229,14 +230,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
+
     function renderCategories() {
         layersContainer.innerHTML = "";
         SceneContainer.innerHTML = "";
         for (const id in categories) {
             const category = categories[id];
             addToLayers(category.button_name, category.id);
-            addToScene(category)
+            addToScene(category);
         }
+        addCommunications(childrenID);
 
         for (const id in categories) {
             const category = categories[id];
@@ -246,6 +249,171 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
     }
+    function drawLineWithHorizontalLegsPxCoordsInContainer(container, x1, y1, x2, y2, startLegDir, endLegDir) {
+        const rect = container.getBoundingClientRect();
+
+        const legLengthPercent = 15;
+        const legLengthPx = (rect.width * legLengthPercent) / 100;
+
+        const sx = x1 + legLengthPx * startLegDir;
+        const sy = y1;
+
+        const ex = x2 + legLengthPx * endLegDir;
+        const ey = y2;
+
+        const percent = (val, axis) =>
+            axis === 'x'
+                ? ((val - rect.left) / rect.width) * 100
+                : ((val - rect.top) / rect.height) * 100;
+
+        const addLine = (x1, y1, x2, y2, dop) => {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+            const line = document.createElement('div');
+            line.style.position = 'absolute';
+            line.style.left = percent(x1, 'x') + '%';
+            line.style.top = percent(y1, 'y') + '%';
+            line.style.width = (length / rect.width) * 100 + '%';
+            line.style.height = '2px';
+            line.style.backgroundColor = 'white';
+            line.style.transform = `rotate(${angle}deg)`;
+            line.style.transformOrigin = '0 0';
+            line.style.zIndex = dop ? '100' : '-100';
+            line.style.pointerEvents = 'none';
+
+            container.appendChild(line);
+
+            // Стрелку рисуем только на конце правой ножки (dop === true и x2,y2 === ex,ey)
+                const arrow = document.createElement('div');
+                arrow.style.position = 'absolute';
+                arrow.style.width = '0';
+                arrow.style.height = '0';
+                arrow.style.borderTop = '6px solid transparent';
+                arrow.style.borderBottom = '6px solid transparent';
+
+                if (endLegDir > 0) {
+                    // стрелка налево
+                    arrow.style.borderLeft = '10px solid white';
+                    
+                } else {
+                    // стрелка направо
+                    arrow.style.borderRight = '10px solid white';
+                }
+
+                arrow.style.left = percent(x2+1, 'x') + '%';
+                arrow.style.top = percent(y2+1, 'y') + '%';
+                arrow.style.marginTop = '-6px'; // центрируем по вертикали
+                arrow.style.marginLeft = endLegDir > 0 ? '-10px' : '0';
+                arrow.style.zIndex = '110';
+                arrow.style.pointerEvents = 'none';
+
+                container.appendChild(arrow);
+
+        };
+
+        addLine(x1, y1, sx, sy, true);  // левая ножка
+        addLine(x2, y2, ex, ey, true);  // правая ножка с стрелкой
+        addLine(sx, sy, ex, ey, false); // горизонтальная линия
+    }
+
+
+
+
+
+
+    function addCommunications(childrenIDs) {
+        for (const childId of childrenIDs) {
+            const layersContainer = document.getElementById(childId[0]+'element');
+            const oldLayer = document.getElementById(`line_layer_${childId[0]}_${childId[1]}`);
+            if (oldLayer) oldLayer.remove();
+
+            const layerElement = document.createElement("div");
+            layerElement.id = `line_layer_${childId[0]}_${childId[1]}`;
+            layerElement.style.position = "absolute";
+            layerElement.style.left = "0";
+            layerElement.style.top = "0";
+            layerElement.style.width = "100%";
+            layerElement.style.height = "100%";
+            layerElement.style.pointerEvents = "none";
+            layersContainer.appendChild(layerElement);
+            
+            const startPoints = [
+                document.getElementById(`connection_start_${childId[0]}_${childId[1]}_1`),
+                document.getElementById(`connection_start_${childId[0]}_${childId[1]}_2`)
+            ];
+            const endPoints = [
+                document.getElementById(`connection_end_${childId[0]}_${childId[1]}_1`),
+                document.getElementById(`connection_end_${childId[0]}_${childId[1]}_2`)
+            ];
+
+            let bestPair = null;
+            let minDistance = Infinity;
+            let startLegDir = 0;
+            let endLegDir = 0;
+
+            for (const startEl of startPoints) {
+
+                
+                for (const endEl of endPoints) {
+                    if (!startEl || !endEl) continue;
+
+                    const startRect = startEl.getBoundingClientRect();
+                    const endRect = endEl.getBoundingClientRect();
+
+                    const x1 = startRect.left + startRect.width / 2;
+                    const y1 = startRect.top + startRect.height / 2;
+                    const x2 = endRect.left + endRect.width / 2;
+                    const y2 = endRect.top + endRect.height / 2;
+
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        bestPair = { x1, y1, x2, y2 };
+
+                        // Определяем направление ножек по суффиксу id
+                        startLegDir = startEl.id.endsWith('_1') ? -1 : 1;
+                        endLegDir = endEl.id.endsWith('_1') ? -1 : 1;
+                    }
+                }
+            }
+
+            if (bestPair) {
+
+                drawLineWithHorizontalLegsPxCoordsInContainer(
+                    layerElement,
+                    bestPair.x1,
+                    bestPair.y1,
+                    bestPair.x2,
+                    bestPair.y2,
+                    startLegDir,
+                    endLegDir
+                );
+            }
+        }
+    }
+
+    window.addEventListener('mousemove', () => {
+        // вызов функции обновления линий
+        addCommunications(childrenID);
+    });
+
+    window.addEventListener('resize', () => {
+        addCommunications(childrenID);
+    });
+
+
+
+
+
+
+
+
     
     function addToLayers(buttonName, buttonID) {
         const layerElement = document.createElement("button");
@@ -286,13 +454,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         for (const childId of category.children) {
             html += `
                 <div class="element_block_to_scene">
+                    <div class="element_name_to_scene_connection_1" id="connection_start_${category.id}_${childId}_1" ></div>
                     <div class="element_name_to_scene" style="text-align: left;">${categories[childId].button_name}</div>
+                    <div class="element_name_to_scene_connection_2" id="connection_start_${category.id}_${childId}_2"></div>
                 </div>`;
+            childrenID.push([category.id,childId])
         }
         for (const parentId of category.parent) {
             html += `
                 <div class="element_block_to_scene">
+                    <div class="element_name_to_scene_connection_1" id="connection_end_${parentId}_${category.id}_1"></div>
                     <div class="element_name_to_scene" style="text-align: left;">${categories[parentId].button_name}</div>
+                    <div class="element_name_to_scene_connection_2" id="connection_end_${parentId}_${category.id}_2"></div>
                 </div>`;
         }
         
@@ -320,7 +493,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const category = categories[id];
             if (category['id'] == data){
                 document.querySelectorAll(".selected_category").forEach((elem) => {
-                    elem.className = elem.className.replace(" selected_category", "");
+                    elem.className = elem.className.replace("selected_category", "");
                 });
                 const element = document.getElementById(data + "element");
                 element.className = "element_to_scene selected_category"; 
@@ -558,13 +731,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (elementchildblock1 && elementchildblock2) {
                         elementchildblock1.innerHTML += `
                             <div class="element_block_to_scene">
+                                <div class="element_name_to_scene_connection_1" id="connection_start_${activeID['start']}_${ID}_1"></div>
                                 <div class="element_name_to_scene" style="text-align: left;">${categories[activeID['start']].button_name}</div>
+                                <div class="element_name_to_scene_connection_2" id="connection_start_${activeID['start']}_${ID}_2"></div>
                             </div>`;
                         
                         elementchildblock2.innerHTML += `
                             <div class="element_block_to_scene">
+                                <div class="element_name_to_scene_connection_1" id="connection_end_${activeID['start']}_${ID}_1"></div>
                                 <div class="element_name_to_scene" style="text-align: left;">${categories[ID].button_name}</div>
+                                <div class="element_name_to_scene_connection_2" id="connection_end_${activeID['start']}_${ID}_2"></div>
                             </div>`;
+                        childrenID.push([activeID['start'],ID]);
+                        addCommunications(childrenID);
                     }
                     if (elementchildblock1.style.display === 'none') {
                         elementchildblock1.style.display = 'block';
@@ -572,8 +751,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (elementchildblock2.style.display === 'none') {
                         elementchildblock2.style.display = 'block';
                     }
-
-                    console.log(activeID,111111111111111);
                     
                 }
                 
@@ -583,7 +760,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const animConnectionElement = document.getElementById(`anim_connection_to_scene${activeID['start']}`);
             if (animConnectionElement) {
                 animConnectionElement.remove();
-
             }
             activeID['end'] = '';
             activeID['start'] = '';
@@ -595,7 +771,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 element.innerHTML += `
                     <div class="anim_connection_to_scene" id="anim_connection_to_scene${ID}">
                         <div id="line${ID}" style="position:absolute; height:2px; background:white;"></div>
-                        <div id="mobile_line${ID}" style="position:absolute; height:2px; background:white;"></div>
+                        <div id="mobile_line${ID}" style="position:absolute; height:2px; background:white; pointer-events: none;"></div>
                     </div>
                 `;
 
@@ -625,9 +801,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 function updateMobileLine(event) {
                     const x0Mobile = x1;
                     const y0Mobile = y1;
-                    const x1Mobile = event.clientX-element.getBoundingClientRect().left;
-                    const y1Mobile = event.clientY-element.getBoundingClientRect().top;
+                    const x1Mobile = (event.clientX-element.getBoundingClientRect().left)/scale;
+                    const y1Mobile = (event.clientY-element.getBoundingClientRect().top)/scale;
 
+                    console.log();
+                    
                     const dxMobile = x1Mobile - x0Mobile;
                     const dyMobile = y1Mobile - y0Mobile;
                     const lengthMobile = Math.sqrt(dxMobile * dxMobile + dyMobile * dyMobile);
@@ -654,6 +832,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
     window.сreatingСonnection = сreatingСonnection;
+
+
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.add_connection_button')) {
+            const animConnectionElement = document.getElementById(`anim_connection_to_scene${activeID['start']}`);
+            if (animConnectionElement) {
+                animConnectionElement.remove();
+            }
+            activeID['end'] = '';
+            activeID['start'] = '';
+        }
+    });
+    
+    
+    
 
     loadCategories();
 });

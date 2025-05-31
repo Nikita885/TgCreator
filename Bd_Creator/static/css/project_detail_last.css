@@ -391,9 +391,12 @@ input:checked + .slider {
     width: 100%; /* Растягиваем блок на всю ширину контейнера */
     align-items: center; /* Выравнивание по центру по вертикали */
     gap: 5px; /* Расстояние между элементами внутри */
+    justify-content: center;
 }   
 .element_block_communications{
     display: block;
+    width: 100%;
+
 }
 
 .element_to_scene_label_title {
@@ -419,6 +422,7 @@ input:checked + .slider {
     box-sizing: border-box;
     vertical-align: middle; /* Выравниваем по вертикали */
     text-align: center;
+    
 }
 .add_connection_button{
     width: 20px;
@@ -431,4 +435,20 @@ input:checked + .slider {
     top: 100%;
     left: 50%;
     transform: translate(-50%,-50%);
+}
+.element_name_to_scene_connection_1,
+.element_name_to_scene_connection_2{
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border-radius: 10px;
+    position: absolute;
+    
+    
+}
+.element_name_to_scene_connection_1{
+    left: 10px;
+}
+.element_name_to_scene_connection_2{
+    right: 10px;
 }
