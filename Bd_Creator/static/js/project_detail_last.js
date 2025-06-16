@@ -459,7 +459,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             html += `
                 <div class="element_block_to_scene">
                     <div class="element_name_to_scene_connection_1" id="connection_start_${category.id}_${childId}_1" ></div>
-                    <div class="element_name_to_scene" style="text-align: left;">${categories[childId].button_name}</div>
+                    <div class="element_name_to_scene" id="call_${category.id}" style="text-align: left;">${categories[childId].button_name}</div>
                     <div class="element_name_to_scene_connection_2" id="connection_start_${category.id}_${childId}_2"></div>
                 </div>`;
             childrenID.push([category.id,childId])
@@ -468,7 +468,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             html += `
                 <div class="element_block_to_scene">
                     <div class="element_name_to_scene_connection_1" id="connection_end_${parentId}_${category.id}_1"></div>
-                    <div class="element_name_to_scene" style="text-align: left;">${categories[parentId].button_name}</div>
+                    <div class="element_name_to_scene" id="call_${category.id}" style="text-align: left;">${categories[parentId].button_name}</div>
                     <div class="element_name_to_scene_connection_2" id="connection_end_${parentId}_${category.id}_2"></div>
                 </div>`;
         }
@@ -551,7 +551,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 const add_element = document.getElementById(buttonNameInputRight.id);
                 add_element.querySelector('div').innerHTML = category['button_name'];
-
+                
+                
+                const callElement = document.getElementById(`call_`+buttonNameInputRight.id);
+                callElement.textContent = category['button_name'];
                 const add_element_to_scene = document.getElementById(buttonNameInputRight.id + 'element');
                 add_element_to_scene.querySelector('.element_name_to_scene').textContent = category['button_name'];
 
@@ -733,6 +736,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             createCategory(buttonName, "123", [], false, true, "50%", "50%", "rgb(0, 0, 0)", [], false);
             buttonNameInput.value = '';
             isDataSaved = false;
+            СloseBack();
         } else {
             alert("Пожалуйста, введите название кнопки!");
         }

@@ -99,7 +99,7 @@ input:checked + .slider {
 
 
 .element_to_scene.selected_category{
-    border: 2px solid #5b9640;
+    border: 2px solid #555555;
 }
 
 .left_wing {
@@ -226,7 +226,7 @@ input:checked + .slider {
 
     border: 2px solid transparent;
     border-radius: 5px;
-    box-shadow: 0 0 20px #194A02, 0 0 30px #194A02, 0 0 40px #194A02;
+    
 
     background: linear-gradient(180deg, #181818, #2c2c2c);
 
@@ -237,13 +237,15 @@ input:checked + .slider {
 
     z-index: 123;
 }
+
 .add_element_menu_text{
     color: white;
     position: absolute;
     top: 20%;
-    left: 5%; 
+    left: 38%;
     font-size: 20px;
 }
+
 .add_element_menu_input {
     width: 415px;
     position: absolute;
@@ -261,11 +263,7 @@ input:checked + .slider {
     transition: all 0.3s ease;
 }
 
-.add_element_menu_input:focus {
-    border-color: #194A02;
-    box-shadow: 0 4px 8px #194A02;
 
-}
 
 .add_element_menu_input::placeholder {
     color: #aaa;
@@ -273,7 +271,7 @@ input:checked + .slider {
 }
 .add_element_menu_button{
 
-    background-color: #194A02;
+    background-color: #2b2b2b;
     border-radius: 8px;
     width: 415px;
     height: 40px;
@@ -286,7 +284,7 @@ input:checked + .slider {
     
 }
 .add_element_menu_button:hover{
-    background-color: #1b5700;
+    background-color: #474747;
 }
 .add_element_menu_button_text{
     color: white;
@@ -418,7 +416,7 @@ input:checked + .slider {
 }
 
 .element_to_scene_label_title {
-    
+    position: relative;
     color: white;
     font-size: 17px;
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
@@ -426,7 +424,7 @@ input:checked + .slider {
     overflow: visible;
     text-overflow: unset;
     display: inline-block;
-    vertical-align: middle; /* Выравниваем по вертикали */
+    vertical-align: middle;
 }
 
 .element_name_to_scene {
