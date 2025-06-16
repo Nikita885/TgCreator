@@ -317,6 +317,7 @@ def new_get_category(request, project_id):
         'conditionX': category.conditionX,
         'conditionY': category.conditionY,
         'color': category.color,
+        'is_head': category.is_head,
     } for category in categories}
 
     category_list = list(category_dict.values())
@@ -327,6 +328,7 @@ def create_category(request, project_id):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            print(data)
             button_name = data.get('button_name')
             parentMas = data.get('parent')
             message = data.get('message')
@@ -337,6 +339,7 @@ def create_category(request, project_id):
             conditionY = data.get('conditionY')
             color = data.get('color')
             children = data.get('children')
+            is_head = data.get('is_head')
 
             if created:
                 if button_name and message:
@@ -350,6 +353,7 @@ def create_category(request, project_id):
                         conditionX=conditionX,
                         conditionY=conditionY,
                         color=color,
+                        is_head=is_head,
                     )
                     category.save()  # Save the category instance first
 
@@ -371,6 +375,7 @@ def create_category(request, project_id):
                     category.button_name = data.get('button_name', category.button_name)
                     category.message = data.get('message', category.message)
                     category.color = data.get('color', category.color)
+                    category.is_head = data.get('is_head', category.is_head)
 
                     parentMas = data.get('parent')
                     if parentMas:

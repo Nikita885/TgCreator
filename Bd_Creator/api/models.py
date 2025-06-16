@@ -32,7 +32,7 @@ class Category(models.Model):
     conditionY = models.CharField(max_length=255, default='50%')
     color = models.CharField(max_length=255, default='rgb(0, 0, 0)')
     children = models.ManyToManyField('self', symmetrical=False, related_name='childrens', blank=True)
-
+    is_head = models.BooleanField(default=False, verbose_name='Главная категория') 
 
     def generate_project_id(self):
         # Создаём новый проект и возвращаем его

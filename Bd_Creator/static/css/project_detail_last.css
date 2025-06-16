@@ -298,7 +298,7 @@ input:checked + .slider {
     transform: translate(-50%,-50%);
 }
 .right_settings_button_name,
-.right_settings_button_text {
+.right_settings_button_text{
     width: 100%;
     display: flex; /* Используем flex для организации дочерних элементов */
     flex-direction: column; /* Элементы располагаются вертикально */
@@ -310,15 +310,33 @@ input:checked + .slider {
     align-items: flex-start; /* Выравнивание по левому краю */
     gap: 10px; /* Расстояние между элементами */
 }
+.right_settings_checkbox_head{
+    width: 100%;
+    display: flex; /* Используем flex для организации дочерних элементов */
+    flex-direction: row; /* Элементы располагаются вертикально */
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
+    min-height: 50px; 
+    overflow: visible;
+    align-items: flex-start; /* Выравнивание по левому краю */
+    gap: 10px; /* Расстояние между элементами */
+}
 .right_settings_button_name_text,
-.right_settings_button_text_text{
+.right_settings_button_text_text,
+.right_settings_checkbox_text{
     color:white;
     font-size: 20px;
     margin-left: 15px;
     margin-top: 10px;
 }
+.right_settings_checkbox_input{
+    position: absolute;
+    top: 25px;
+    right: 38px;
+}
 .right_settings_button_name_input,
-.right_settings_button_text_input {
+.right_settings_button_text_input{
     width: 100%;
     font-size: 16px;
     padding: 8px;
@@ -451,4 +469,7 @@ input:checked + .slider {
 }
 .element_name_to_scene_connection_2{
     right: 10px;
+}
+.blocked{
+    pointer-events: none; 
 }

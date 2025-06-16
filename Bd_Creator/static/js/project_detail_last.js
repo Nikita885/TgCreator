@@ -198,6 +198,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sendCategoriesButton = document.getElementById("send-categories-btn"); // Кнопка для отправки категорий
     const buttonNameInputRight = document.querySelector('.right_settings_button_name_input');
     const buttonTextInputRight = document.querySelector('.right_settings_button_text_input');
+    const checkbox = document.querySelector('.right_settings_checkbox_input');
+    const dopBlockedCheckbox = document.getElementById('scene');
+    dopBlockedCheckbox.classList.add('blocked_сheck_');
     window.categories = {};
     
     let isDataSaved = true;
@@ -240,6 +243,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             addToScene(category);
         }
         addCommunications(childrenID);
+        
 
         for (const id in categories) {
             const category = categories[id];
@@ -501,7 +505,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                 
                 buttonNameInputRight.value = category['button_name'];
                 buttonNameInputRight.id = data;
-                buttonTextInputRight.value = category['message'];
+                if (category['is_head']){
+                    buttonTextInputRight.classList.add('blocked');
+                    buttonTextInputRight.value = '/start';
+                    
+                    
+                }else{
+                    buttonTextInputRight.classList.remove('blocked');
+                    buttonTextInputRight.value = category['message'];
+                    
+                }
+                
+
+
+                checkbox.id = data;
+                checkbox.checked = category['is_head'];
+                if (checkbox.checked){
+                    checkbox.disabled = false;
+                    
+                }else if(document.querySelector('.blocked_сheck_')){
+                    checkbox.disabled = true;
+                }
                 
 
                 buttonTextInputRight.id = data;
@@ -593,7 +617,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
 
-    function createCategory(buttonName, message, parent, changes, created, conditionsX, conditionsY, colors, childrens) {
+    function createCategory(buttonName, message, parent, changes, created, conditionsX, conditionsY, colors, childrens, is_heads) {
         const newCategoryId = Date.now();
         const newCategory = {
             id: newCategoryId,
@@ -606,6 +630,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             conditionY: conditionsY,
             color: colors,
             children: childrens,
+            is_head: is_heads,
         };
 
         categories[newCategoryId] = newCategory;
@@ -679,7 +704,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         conditionX: category.conditionX,
                         conditionY: category.conditionY,
                         color: category.color, // Сохраняем цвет
-                        children: category.children
+                        children: category.children,
+                        is_head: category.is_head
                     }),
                 });
 
@@ -704,7 +730,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const buttonName = buttonNameInput.value.trim();
         if (buttonName) {
-            createCategory(buttonName, "123", [], false, true, "50%", "50%", "rgb(0, 0, 0)", []);
+            createCategory(buttonName, "123", [], false, true, "50%", "50%", "rgb(0, 0, 0)", [], false);
             buttonNameInput.value = '';
             isDataSaved = false;
         } else {
@@ -842,6 +868,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             activeID['end'] = '';
             activeID['start'] = '';
+        }
+    });
+    
+    checkbox.addEventListener('change', function () {        
+        if (!document.querySelector('.blocked_сheck_')){
+            if (checkbox.checked) {
+                categories[checkbox.id].is_head = true;
+                buttonTextInputRight.value = '/start';
+                buttonTextInputRight.classList.add('blocked');
+                dopBlockedCheckbox.classList.add('blocked_сheck_');
+            } else {
+                categories[checkbox.id].is_head = false;
+                buttonTextInputRight.classList.remove('blocked');
+                dopBlockedCheckbox.classList.remove('blocked_сheck_');
+                buttonTextInputRight.value = categories[buttonNameInputRight.id]['message'];
+            }
+            isDataSaved = false;
+            categories[buttonNameInputRight.id]['change'] = true;
+        }else{
+            if (!checkbox.checked) {
+                categories[checkbox.id].is_head = false;
+                buttonTextInputRight.classList.remove('blocked');
+                dopBlockedCheckbox.classList.remove('blocked_сheck_');
+                buttonTextInputRight.value = categories[buttonNameInputRight.id]['message'];
+            }
+            isDataSaved = false;
+            categories[buttonNameInputRight.id]['change'] = true;
         }
     });
     
