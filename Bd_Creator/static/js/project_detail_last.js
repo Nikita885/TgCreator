@@ -237,22 +237,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     function renderCategories() {
         layersContainer.innerHTML = "";
         SceneContainer.innerHTML = "";
-        for (const id in categories) {
-            const category = categories[id];
-            addToLayers(category.button_name, category.id);
-            addToScene(category);
-        }
-        addCommunications(childrenID);
-        
 
         for (const id in categories) {
             const category = categories[id];
+            if (!category) continue;
+
+            // удалим несуществующие children/parent перед отрисовкой
+            category.children = category.children.filter(childId => categories[childId]);
+            category.parent = category.parent.filter(parentId => categories[parentId]);
+
+            addToLayers(category.button_name, category.id, category.is_head);
+
+            addToScene(category);
+        }
+
+        // фильтруем childrenID глобально
+        window.childrenID = window.childrenID.filter(([from, to]) => {
+            return categories[from] && categories[to];
+        });
+
+        addCommunications(childrenID);
+
+        for (const id in categories) {
+            const category = categories[id];
+            if (!category) continue;
             const element = document.getElementById(category.id + 'element');
             if (element) {
                 element.style.backgroundColor = category.color || "#ffffff";
             }
         }
     }
+
+
     function drawLineWithHorizontalLegsPxCoordsInContainer(container, x1, y1, x2, y2, startLegDir, endLegDir) {
         const rect = container.getBoundingClientRect();
 
@@ -300,11 +316,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 if (endLegDir > 0) {
                     // стрелка налево
-                    arrow.style.borderLeft = '10px solid white';
+                    arrow.style.borderRight = '10px solid white';
+                    
                     
                 } else {
                     // стрелка направо
-                    arrow.style.borderRight = '10px solid white';
+                    arrow.style.borderLeft = '10px solid white';
                 }
 
                 arrow.style.left = percent(x2+1, 'x') + '%';
@@ -419,16 +436,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     
-    function addToLayers(buttonName, buttonID) {
+    function addToLayers(buttonName, buttonID, isHead = false) {
         const layerElement = document.createElement("button");
-        layerElement.onclick = () => ListItems(buttonID); // Используем стрелочную функцию
+        layerElement.onclick = () => ListItems(buttonID);
         layerElement.className = "add_element";
         layerElement.id = buttonID;
-        layerElement.innerHTML = `
-            <div class="add_element_name">${buttonName}</div>
-        `;
+
+        // Основной контент
+        let html = `<div class="add_element_name">${buttonName}</div>`;
+
+        // Только если не голова — добавляем delete_button
+        if (!isHead) {
+            html += `<img class="delete_button" id="${buttonID}_${projectId}">`;
+        }
+
+        layerElement.innerHTML = html;
         layersContainer.appendChild(layerElement);
     }
+
 
     function addToScene(category) {
         const layerElement = document.createElement("div");
@@ -440,7 +465,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         layerElement.style.top = category.conditionY;
         layerElement.style.backgroundColor = category.color || "#ffffff"; // Цвет по умолчанию
         
-        layerElement.onclick = () => selectElement(category.id);
+
 
         let html = `
             <div class="element_name_to_scene_container">
@@ -457,18 +482,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         for (const childId of category.children) {
             html += `
-                <div class="element_block_to_scene">
+                <div class="element_block_to_scene" id="call_${childId}_g">
                     <div class="element_name_to_scene_connection_1" id="connection_start_${category.id}_${childId}_1" ></div>
-                    <div class="element_name_to_scene" id="call_${category.id}" style="text-align: left;">${categories[childId].button_name}</div>
+                    <div class="element_name_to_scene" id="call_${childId}" style="text-align: left;">${categories[childId].button_name}</div>
                     <div class="element_name_to_scene_connection_2" id="connection_start_${category.id}_${childId}_2"></div>
                 </div>`;
             childrenID.push([category.id,childId])
         }
         for (const parentId of category.parent) {
             html += `
-                <div class="element_block_to_scene">
+                <div class="element_block_to_scene"  id="call_${parentId}_g">
                     <div class="element_name_to_scene_connection_1" id="connection_end_${parentId}_${category.id}_1"></div>
-                    <div class="element_name_to_scene" id="call_${category.id}" style="text-align: left;">${categories[parentId].button_name}</div>
+                    <div class="element_name_to_scene" id="call_${parentId}" style="text-align: left;">${categories[parentId].button_name}</div>
                     <div class="element_name_to_scene_connection_2" id="connection_end_${parentId}_${category.id}_2"></div>
                 </div>`;
         }
@@ -502,31 +527,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const element = document.getElementById(data + "element");
                 element.className = "element_to_scene selected_category"; 
                 
-                
-                buttonNameInputRight.value = category['button_name'];
-                buttonNameInputRight.id = data;
                 if (category['is_head']){
-                    buttonTextInputRight.classList.add('blocked');
-                    buttonTextInputRight.value = '/start';
+                    buttonNameInputRight.disabled = true;
+                    buttonNameInputRight.value = '/start';
                     
                     
                 }else{
-                    buttonTextInputRight.classList.remove('blocked');
-                    buttonTextInputRight.value = category['message'];
-                    
+                    buttonNameInputRight.disabled = false;
+                    buttonNameInputRight.value = category['button_name'];
                 }
+                
+                
+                buttonNameInputRight.id = data;
+
+
+                buttonTextInputRight.value = category['message'];
+
                 
 
 
                 checkbox.id = data;
                 checkbox.checked = category['is_head'];
-                if (checkbox.checked){
-                    checkbox.disabled = false;
-                    
-                }else if(document.querySelector('.blocked_сheck_')){
-                    checkbox.disabled = true;
-                }
-                
 
                 buttonTextInputRight.id = data;
                 infoButton.style.display = 'block';
@@ -553,12 +574,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 add_element.querySelector('div').innerHTML = category['button_name'];
                 
                 
-                const callElement = document.getElementById(`call_`+buttonNameInputRight.id);
-                callElement.textContent = category['button_name'];
+
                 const add_element_to_scene = document.getElementById(buttonNameInputRight.id + 'element');
                 add_element_to_scene.querySelector('.element_name_to_scene').textContent = category['button_name'];
 
                 isDataSaved = false;
+                const callElement = document.getElementById(`call_`+buttonNameInputRight.id);
+                if(callElement){
+                    callElement.textContent = category['button_name'];
+                }
+                
 
             }
         }
@@ -637,6 +662,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         categories[newCategoryId] = newCategory;
+        
         renderCategories();
     }
     function getCSRFToken() {
@@ -647,7 +673,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     function selectElement(categoryId) {
         window.selectedElementId = categoryId;
-        
         // Получаем категорию
         const category = categories[categoryId]; 
         console.log(categories[categoryId]);
@@ -657,8 +682,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const colorInput = document.querySelector(".right_settings_button_color_input");
         if (colorInput) {
             colorInput.value = category.color || "#ffffff";
-            
-            
         }
     }
     
@@ -686,18 +709,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         const csrfToken = getCSRFToken();
         const createdCategories = Object.values(categories).filter(cat => cat.created || cat.change);
 
-        
-        for (const category of createdCategories) {
-            console.log(1232131);
-            
-            try {
-                const response = await fetch(`/projects/${projectId}/add_category/`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": csrfToken,
-                    },
-                    body: JSON.stringify({
+        if (createdCategories.length === 0) {
+            console.log("Нет категорий для сохранения.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/projects/${projectId}/add_category/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({
+                    categories: createdCategories.map(category => ({
                         category_id: category.id,
                         button_name: category.button_name,
                         parent: category.parent,
@@ -706,34 +731,47 @@ document.addEventListener("DOMContentLoaded", async () => {
                         created: category.created,
                         conditionX: category.conditionX,
                         conditionY: category.conditionY,
-                        color: category.color, // Сохраняем цвет
+                        color: category.color,
                         children: category.children,
                         is_head: category.is_head
-                    }),
-                });
+                    })),
+                }),
+            });
 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log(`Категория ${result.category_id} успешно сохранена.`);
-                    category.created = false; // Обновляем статус на локальной стороне
-                    
-                    isDataSaved = true;
-                } else {
-                    const error = await response.json();
-                    console.error("Ошибка при сохранении категории:", error);
-                }
-            } catch (error) {
-                console.error("Ошибка соединения с сервером:", error);
+            if (response.ok) {
+                const results = await response.json();
+                console.log(`Успешно сохранено категорий: ${results.saved_count}`);
+
+                // 1. Полностью сбрасываем состояние перед загрузкой
+                window.childrenID = [];
+                categories = {};
+                
+                // 2. Загружаем свежие данные с сервера
+                await loadCategories();
+
+                // 3. Обновляем флаг только после успешной загрузки
+                isDataSaved = true;
+                
+                // 4. Добавляем небольшую задержку для стабилизации DOM
+                await new Promise(resolve => setTimeout(resolve, 50));
+                
+            }else {
+                const error = await response.json();
+                console.error("Ошибка при сохранении категорий:", error);
             }
+        } catch (error) {
+            console.error("Ошибка соединения с сервером:", error);
         }
     }
+
+
 
 
     addElementMenuButton.addEventListener("click", () => {
         
         const buttonName = buttonNameInput.value.trim();
         if (buttonName) {
-            createCategory(buttonName, "123", [], false, true, "50%", "50%", "rgb(0, 0, 0)", [], false);
+            createCategory(buttonName, "Пусто", [], false, true, "50%", "50%", "rgb(0, 0, 0)", [], false);
             buttonNameInput.value = '';
             isDataSaved = false;
             СloseBack();
@@ -749,43 +787,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     function сreatingСonnection(ID) {
         if (activeID['start']) {
             if (activeID['start'] != ID) {
-                if (!categories[ID].parent.includes(activeID['start']) && !categories[activeID['start']].children.includes(ID)) {
-                    categories[ID].parent.push(activeID['start']);
-                    categories[activeID['start']].children.push(ID);
-                    categories[ID].change = true;
-                    categories[activeID['start']].change = true;
-                    isDataSaved = false;
+                if(!categories[ID].is_head){
+                    if (!categories[ID].parent.includes(activeID['start']) && !categories[activeID['start']].children.includes(ID)) {
+                        categories[ID].parent.push(activeID['start']);
+                        categories[activeID['start']].children.push(ID);
+                        categories[ID].change = true;
+                        categories[activeID['start']].change = true;
+                        isDataSaved = false;
 
-                    const elementchildblock1 = document.getElementById(ID + 'elementchildblock');
-                    const elementchildblock2 = document.getElementById(activeID['start'] + 'elementchildblock');
-                    if (elementchildblock1 && elementchildblock2) {
-                        elementchildblock1.innerHTML += `
-                            <div class="element_block_to_scene">
-                                <div class="element_name_to_scene_connection_1" id="connection_start_${activeID['start']}_${ID}_1"></div>
-                                <div class="element_name_to_scene" style="text-align: left;">${categories[activeID['start']].button_name}</div>
-                                <div class="element_name_to_scene_connection_2" id="connection_start_${activeID['start']}_${ID}_2"></div>
-                            </div>`;
+                        const elementchildblock1 = document.getElementById(ID + 'elementchildblock');
+                        const elementchildblock2 = document.getElementById(activeID['start'] + 'elementchildblock');
+                        if (elementchildblock1 && elementchildblock2) {
+                            elementchildblock1.innerHTML += `
+                                <div class="element_block_to_scene">
+                                    <div class="element_name_to_scene_connection_1" id="connection_end_${activeID['start']}_${ID}_1"></div>
+                                    <div class="element_name_to_scene" style="text-align: left;">${categories[activeID['start']].button_name}</div>
+                                    <div class="element_name_to_scene_connection_2" id="connection_end_${activeID['start']}_${ID}_2"></div>
+                                </div>`;
+                            
+                            elementchildblock2.innerHTML += `
+                                <div class="element_block_to_scene">
+                                    <div class="element_name_to_scene_connection_1" id="connection_start_${activeID['start']}_${ID}_1"></div>
+                                    <div class="element_name_to_scene" style="text-align: left;">${categories[ID].button_name}</div>
+                                    <div class="element_name_to_scene_connection_2" id="connection_start_${activeID['start']}_${ID}_2"></div>
+                                </div>`;
+                            childrenID.push([activeID['start'],ID]);
+                            addCommunications(childrenID);
+                        }
+                        if (elementchildblock1.style.display === 'none') {
+                            elementchildblock1.style.display = 'block';
+                        }
+                        if (elementchildblock2.style.display === 'none') {
+                            elementchildblock2.style.display = 'block';
+                        }
                         
-                        elementchildblock2.innerHTML += `
-                            <div class="element_block_to_scene">
-                                <div class="element_name_to_scene_connection_1" id="connection_end_${activeID['start']}_${ID}_1"></div>
-                                <div class="element_name_to_scene" style="text-align: left;">${categories[ID].button_name}</div>
-                                <div class="element_name_to_scene_connection_2" id="connection_end_${activeID['start']}_${ID}_2"></div>
-                            </div>`;
-                        childrenID.push([activeID['start'],ID]);
-                        addCommunications(childrenID);
                     }
-                    if (elementchildblock1.style.display === 'none') {
-                        elementchildblock1.style.display = 'block';
-                    }
-                    if (elementchildblock2.style.display === 'none') {
-                        elementchildblock2.style.display = 'block';
-                    }
-                    
                 }
-                
-                
-                
             }
             const animConnectionElement = document.getElementById(`anim_connection_to_scene${activeID['start']}`);
             if (animConnectionElement) {
@@ -875,34 +912,96 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
     
-    checkbox.addEventListener('change', function () {        
-        if (!document.querySelector('.blocked_сheck_')){
-            if (checkbox.checked) {
-                categories[checkbox.id].is_head = true;
-                buttonTextInputRight.value = '/start';
-                buttonTextInputRight.classList.add('blocked');
-                dopBlockedCheckbox.classList.add('blocked_сheck_');
-            } else {
-                categories[checkbox.id].is_head = false;
-                buttonTextInputRight.classList.remove('blocked');
-                dopBlockedCheckbox.classList.remove('blocked_сheck_');
-                buttonTextInputRight.value = categories[buttonNameInputRight.id]['message'];
-            }
-            isDataSaved = false;
-            categories[buttonNameInputRight.id]['change'] = true;
-        }else{
-            if (!checkbox.checked) {
-                categories[checkbox.id].is_head = false;
-                buttonTextInputRight.classList.remove('blocked');
-                dopBlockedCheckbox.classList.remove('blocked_сheck_');
-                buttonTextInputRight.value = categories[buttonNameInputRight.id]['message'];
-            }
-            isDataSaved = false;
-            categories[buttonNameInputRight.id]['change'] = true;
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('.delete_button');
+        if (!button) return;
+
+        const idParts = button.id.split('_');
+        if (idParts.length !== 2) {
+            console.error("Неверный формат ID у кнопки:", button.id);
+            return;
         }
+
+        const categoryId = idParts[0];
+        const projectId = idParts[1];
+        const category = categories[categoryId];
+
+        if (!category) {
+            console.warn("Категория уже удалена или не найдена в памяти:", categoryId);
+            return;
+        }
+
+        if (!confirm("Удалить эту категорию и все её подкатегории?")) {
+            return;
+        }
+
+        // === 📌 Если это несохранённая категория (временная) ===
+        if (category.created === true) {
+            // Удаляем DOM-элементы
+            const sceneElem = document.getElementById(`${categoryId}element`);
+            const layerElem = document.getElementById(categoryId);
+            const callElem = document.getElementById(`call_${categoryId}_g`);
+            if (sceneElem) sceneElem.remove();
+            if (layerElem) layerElem.remove();
+            if (callElem) callElem.remove();
+
+            // Удаляем из categories
+            delete categories[categoryId];
+
+            // Очищаем связи
+            window.childrenID = window.childrenID.filter(([from, to]) =>
+                from !== categoryId && to !== categoryId &&
+                categories[from] !== undefined && categories[to] !== undefined
+            );
+
+            renderCategories(); // Обновим отрисовку
+            return;
+        }
+
+        // === 📌 Если это сохранённая категория — удаляем через сервер ===
+        fetch(`/projects/${projectId}/delete_category_with_links/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({ category_id: categoryId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+
+                const sceneElem = document.getElementById(`${categoryId}element`);
+                const layerElem = document.getElementById(categoryId);
+                const callElem = document.getElementById(`call_${categoryId}_g`);
+
+                if (sceneElem) sceneElem.remove();
+                if (layerElem) layerElem.remove();
+                if (callElem) callElem.remove();
+
+                delete categories[categoryId];
+
+                window.childrenID = window.childrenID.filter(([from, to]) =>
+                    from !== categoryId && to !== categoryId &&
+                    categories[from] !== undefined && categories[to] !== undefined
+                );
+
+                renderCategories();
+            } else {
+                alert("Ошибка: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка при удалении:", error);
+            alert("Произошла ошибка при удалении категории.");
+        });
     });
-    
-    
+
+
+
+
+        
     
 
     loadCategories();

@@ -1,15 +1,56 @@
-function addProjectButton(id, name) {
+function getCSRFToken() {
+    const csrfCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='));
+    return csrfCookie ? csrfCookie.split('=')[1] : '';
+}
+
+function addProjectButton(id, name, condition, tg_token) {
     const projectItem = document.createElement('div');
-    projectItem.className = 'project-item'; // Контейнер для кнопки и переключателя
+    projectItem.className = 'project-item';
 
     const toggleSwitch = document.createElement('label');
     toggleSwitch.className = 'toggle-switch';
-    toggleSwitch.innerHTML = `
-        <input type="checkbox">
-        <span class="slider"></span>
-    `;
 
-    // Кнопка для перехода на проект
+    const linkButton = document.createElement('img');
+    linkButton.className = 'link_button';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.className = 'toggle-bot';
+    input.dataset.projectId = id;
+    if (condition) input.checked = true;
+
+    const slider = document.createElement('span');
+    slider.className = 'slider';
+
+    toggleSwitch.appendChild(input);
+    toggleSwitch.appendChild(slider);
+
+    // --- 🔗 Обработчик для перехода к Telegram-боту ---
+    linkButton.addEventListener('click', async () => {
+        if (!tg_token) {
+            alert("TG токен отсутствует");
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${tg_token}/getMe`);
+            const data = await response.json();
+
+            if (data.ok && data.result.username) {
+                const username = data.result.username;
+                window.open(`https://t.me/${username}`, '_blank');
+            } else {
+                alert("Ошибка: токен недействителен или бот не найден.");
+            }
+        } catch (err) {
+            alert("Ошибка запроса к Telegram API");
+            console.error(err);
+        }
+    });
+
+    // Кнопка перехода на страницу проекта
     const projectButton = document.createElement('button');
     projectButton.textContent = name.length > 10 ? name.slice(0, 10) + '...' : name;
     projectButton.onclick = function() {
@@ -17,12 +58,12 @@ function addProjectButton(id, name) {
     };
     projectButton.className = 'button';
 
-    projectItem.appendChild(toggleSwitch); // Добавляем переключатель
-    projectItem.appendChild(projectButton); // Добавляем кнопку проекта
+    projectItem.appendChild(toggleSwitch);
+    projectItem.appendChild(projectButton);
+    projectItem.appendChild(linkButton);
 
     document.getElementById('project-list').appendChild(projectItem);
 }
-
 
 
 
@@ -32,7 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
         data.projects.forEach(project => {
-            addProjectButton(project.id, project.name);
+            console.log(project);
+            
+            addProjectButton(project.id, project.name, project.condition, project.tg_token);
         });
     })
     .catch(error => {
@@ -91,7 +134,9 @@ document.getElementById('submit-project').addEventListener('click', function(eve
         .then(response => response.json())
         .then(data => {
             if (data.id) {
-                addProjectButton(data.id, data.name);  // Добавляем новую кнопку проекта
+                console.log(data);
+                
+                addProjectButton(data.id, data.name, data.condition, data.tg_token);  // Добавляем новую кнопку проекта
                 document.getElementById('project-form').style.display = 'none';  // Скрываем форму
                 document.getElementById('project-name').value = '';  // Очищаем поля
                 document.getElementById('tg-token').value = '';

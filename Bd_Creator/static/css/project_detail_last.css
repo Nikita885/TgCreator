@@ -332,6 +332,7 @@ input:checked + .slider {
     position: absolute;
     top: 25px;
     right: 38px;
+    pointer-events: none;
 }
 .right_settings_button_name_input,
 .right_settings_button_text_input{
@@ -470,4 +471,22 @@ input:checked + .slider {
 }
 .blocked{
     pointer-events: none; 
+}
+.delete_button{
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    width: 25px;
+    height: 25px;
+    background-image: url("/static/svg/delete.png");
+    background-size: cover; /* или contain — зависит от предпочтений */
+    background-repeat: no-repeat;
+    background-position: center;
+
+    cursor: pointer;
+    display: inline-block;
+    z-index: 3;
+    clip-path: inset(1.5px);
+    user-select: none;
 }

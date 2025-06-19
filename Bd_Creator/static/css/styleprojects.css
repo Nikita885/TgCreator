@@ -196,6 +196,7 @@ button:hover {
 .project-item {
     position: relative;
     display: inline-block;
+    width: 186px;
 }
 
 .project-item button {
@@ -218,7 +219,7 @@ button:hover {
 .toggle-switch {
     position: absolute;
     top: 50%;
-    right: 5px;
+    right: 50px;
     transform: translateY(-50%);
     z-index: 2;
     width: 60px;
@@ -264,4 +265,23 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(30px);
+}
+
+
+.link_button {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background-image: url("/static/svg/link.png");
+    background-size: cover; /* или contain — зависит от предпочтений */
+    background-repeat: no-repeat;
+    background-position: center;
+
+    cursor: pointer;
+    display: inline-block;
+    z-index: 3;
+    clip-path: inset(1px);
 }

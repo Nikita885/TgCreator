@@ -10,9 +10,15 @@ class CustomUser(AbstractUser):
 
 class Project(models.Model):
     id = models.AutoField(primary_key=True)  # Уникальный идентификатор проекта
-    head_categories = models.ManyToManyField(
-        'Category', related_name='head_projects', verbose_name="Головные категории", null=True,
-    )  # Ссылка на несколько головных категорий проекта
+    head_category = models.ForeignKey(
+        'Category',
+        on_delete=models.SET_NULL,
+        related_name='head_projects',
+        null=True,
+        blank=True,
+        verbose_name="Головная категория"
+    )
+
     name = models.CharField(max_length=255, verbose_name="Имя проекта")  # Название проекта
     owners = models.ManyToManyField(CustomUser, related_name='owned_projects', verbose_name="Владельцы", null=True)  # Владельцы проекта
     tg_token = models.CharField(max_length=255, verbose_name="Token TG")  # Токен Telegram бота
@@ -22,6 +28,7 @@ class Project(models.Model):
         return self.name
 
 class Category(models.Model):
+
     button_name = models.CharField(max_length=255)
     parents = models.ManyToManyField('self', symmetrical=False, related_name='parent', blank=True)
     parentMas = models.ManyToManyField('self', symmetrical=False, related_name='childrenMas', blank=True)
@@ -33,6 +40,7 @@ class Category(models.Model):
     color = models.CharField(max_length=255, default='rgb(0, 0, 0)')
     children = models.ManyToManyField('self', symmetrical=False, related_name='childrens', blank=True)
     is_head = models.BooleanField(default=False, verbose_name='Главная категория') 
+    
 
     def generate_project_id(self):
         # Создаём новый проект и возвращаем его

@@ -30,6 +30,8 @@ from django.views.decorators.csrf import csrf_exempt
 import asyncio
 from asgiref.sync import sync_to_async
 
+from api.models import CustomUser  # Добавь, если ещё не добавил
+
 running_bots = {}
 
 
@@ -42,7 +44,7 @@ def delete_category_with_children(request, category_id):
             
             category = Category.objects.get(id=category_id)
             print(category)
-            delete_children(category)  # Удаляет все дочерние категории
+            delete_children(category)  
             category.delete()
             return JsonResponse({"success": True, "message": "Категория и все её подкатегории удалены"}, status=200)
         except Category.DoesNotExist:
@@ -218,6 +220,7 @@ def create_project(request):
         name = data.get('name')
         tg_token = data.get('tg_token')
         print(data)
+        
         if name and tg_token:
             # Проверка валидности токена Telegram
             if not is_valid_telegram_token(tg_token):
@@ -226,13 +229,37 @@ def create_project(request):
             # Проверка, существует ли токен в базе данных
             if Project.objects.filter(tg_token=tg_token).exists():
                 return JsonResponse({'error': 'This Telegram token already exists'}, status=400)
-
             try:
+                # Получаем объект пользователя
+                user = CustomUser.objects.get(id=request.idusers)
+
+                # Создаём проект
                 project = Project.objects.create(name=name, tg_token=tg_token)
-                project.owners.add(request.idusers)  # Добавляем текущего пользователя как владельца
+                project.owners.add(user)
+
+                # Создаём головную категорию
+                category = Category.objects.create(
+                    button_name='/start',
+                    message='Пусто',
+                    owner=user,
+                    conditionX='50%',
+                    conditionY='50%',
+                    color='rgb(0, 0, 0)',
+                    is_head=True,
+                    project_id=project
+                )
+
+                # Привязываем головную категорию к проекту
+                project.head_category = category
+                project.save()
+
                 return JsonResponse({'id': project.id, 'name': project.name}, status=201)
+            except CustomUser.DoesNotExist:
+                return JsonResponse({'error': 'User not found'}, status=404)
             except ValidationError as e:
                 return JsonResponse({'error': str(e)}, status=400)
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=500)
 
         return JsonResponse({'error': 'Missing data'}, status=400)
 
@@ -243,7 +270,7 @@ def get_projects(request):
 
     projects = Project.objects.filter(owners=user)
     
-    project_list = [{'id': project.id, 'name': project.name} for project in projects]
+    project_list = [{'id': project.id, 'name': project.name, 'condition': project.condition, 'tg_token': project.tg_token} for project in projects]
     return JsonResponse({'projects': project_list}, safe=False)
 
 
@@ -328,74 +355,99 @@ def create_category(request, project_id):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print(data)
-            button_name = data.get('button_name')
-            parentMas = data.get('parent')
-            message = data.get('message')
-            change = data.get('change')
-            created = data.get('created')
-            category_id = data.get('category_id')
-            conditionX = data.get('conditionX')
-            conditionY = data.get('conditionY')
-            color = data.get('color')
-            children = data.get('children')
-            is_head = data.get('is_head')
+            categories_data = data.get('categories', [])
 
-            if created:
-                if button_name and message:
-                    project = Project.objects.get(id=project_id)
+            saved_count = 0
+            project = Project.objects.get(id=project_id)
 
-                    category = Category(
-                        button_name=button_name,
-                        project_id=project,
-                        owner_id=request.idusers,
-                        message=message,
-                        conditionX=conditionX,
-                        conditionY=conditionY,
-                        color=color,
-                        is_head=is_head,
-                    )
-                    category.save()  # Save the category instance first
+            # Словарь: временный id -> объект Category
+            tempid_to_category = {}
 
-                    if parentMas:
-                        category.parentMas.set(parentMas)  # Set parent relationships
+            # 1. Сохраняем созданные категории, не устанавливая связи
+            for cat_data in categories_data:
+                created = cat_data.get('created')
+                if created:
+                    button_name = cat_data.get('button_name')
+                    message = cat_data.get('message')
+                    conditionX = cat_data.get('conditionX')
+                    conditionY = cat_data.get('conditionY')
+                    color = cat_data.get('color')
+                    is_head = cat_data.get('is_head')
+                    temp_id = cat_data.get('category_id')  # временный id с клиента
 
-                    if children:
-                        category.children.set(children)  # Set children relationships
+                    if button_name and message:
+                        category = Category(
+                            button_name=button_name,
+                            project_id=project,
+                            owner_id=request.idusers,
+                            message=message,
+                            conditionX=conditionX,
+                            conditionY=conditionY,
+                            color=color,
+                            is_head=is_head,
+                        )
+                        category.save()
+                        tempid_to_category[temp_id] = category
+                        saved_count += 1
 
-                    return JsonResponse({'success': 'Category created successfully', 'category_id': category.id})
+            # 2. Обновляем и устанавливаем связи для всех категорий (created и изменённых)
+            for cat_data in categories_data:
+                change = cat_data.get('change')
+                created = cat_data.get('created')
+                category_id = cat_data.get('category_id')
 
-            if change:
-                try:
-                    category = get_object_or_404(Category, id=category_id)
-                    print(data)
+                # Получаем объект Category — для созданных из словаря, для изменённых из БД
+                if created:
+                    category = tempid_to_category.get(category_id)
+                    if not category:
+                        continue
+                elif change:
+                    try:
+                        category = get_object_or_404(Category, id=category_id)
+                    except:
+                        continue
+                else:
+                    continue
 
-                    category.conditionX = data.get('conditionX', category.conditionX)
-                    category.conditionY = data.get('conditionY', category.conditionY)
-                    category.button_name = data.get('button_name', category.button_name)
-                    category.message = data.get('message', category.message)
-                    category.color = data.get('color', category.color)
-                    category.is_head = data.get('is_head', category.is_head)
+                # Обновляем поля, если это изменение
+                if change and not created:
+                    category.conditionX = cat_data.get('conditionX', category.conditionX)
+                    category.conditionY = cat_data.get('conditionY', category.conditionY)
+                    category.button_name = cat_data.get('button_name', category.button_name)
+                    category.message = cat_data.get('message', category.message)
+                    category.color = cat_data.get('color', category.color)
+                    category.is_head = cat_data.get('is_head', category.is_head)
 
-                    parentMas = data.get('parent')
-                    if parentMas:
-                        category.parentMas.set(parentMas)
+                # Для parentMas и children нужно преобразовать временные id в реальные id
+                parent_ids = cat_data.get('parent', [])
+                children_ids = cat_data.get('children', [])
 
-                    children = data.get('children')
-                    if children:
-                        category.children.set(children)
+                # Функция для преобразования временных id в реальные id
+                def map_ids(ids):
+                    real_ids = []
+                    for i in ids:
+                        if i in tempid_to_category:
+                            real_ids.append(tempid_to_category[i].id)
+                        else:
+                            real_ids.append(i)  # Возможно реальный id, оставляем как есть
+                    return real_ids
 
-                    category.save()
+                if parent_ids is not None:
+                    real_parent_ids = map_ids(parent_ids)
+                    category.parentMas.set(real_parent_ids)
 
-                    return JsonResponse({'success': True, 'message': 'Категория обновлена успешно.'})
-                except Exception as e:
-                    return JsonResponse({'error': str(e)}, status=400)
+                if children_ids is not None:
+                    real_children_ids = map_ids(children_ids)
+                    category.children.set(real_children_ids)
 
-            return JsonResponse({'error': 'Missing data'}, status=400)
-        except ValidationError as e:
+                category.save()
+
+            return JsonResponse({'success': True, 'saved_count': saved_count})
+
+        except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
 
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 def edit_category(request, category_id):
     if request.method == 'POST':
         try:
@@ -415,3 +467,56 @@ def edit_category(request, category_id):
             return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'error': 'Неверный метод запроса'}, status=405)
+
+def toggle_bot(request, project_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        condition = data.get('condition', True)
+
+        try:
+            project = Project.objects.get(pk=project_id)
+            project.condition = condition
+            project.save()
+            return JsonResponse({'status': 'ok'})
+        except Project.DoesNotExist:
+            return JsonResponse({'error': 'Project not found'}, status=404)
+        
+
+def delete_category_with_links(request, project_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            category_id = data.get("category_id")
+            if not category_id:
+                return JsonResponse({"success": False, "message": "Не передан category_id"}, status=400)
+
+            category = Category.objects.get(id=category_id, project_id=project_id)
+            delete_children(category)
+            remove_category_links(category)
+            category.delete()
+
+            return JsonResponse({"success": True, "message": "Категория и её связи удалены"}, status=200)
+        except Category.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Категория не найдена"}, status=404)
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+    else:
+        return JsonResponse({"success": False, "message": "Неподдерживаемый метод запроса"}, status=405)
+
+
+def delete_children(category):
+    children = category.children.all()
+    for child in children:
+        delete_children(child)
+        remove_category_links(child)
+        print(f"Удаление подкатегории: {child}")
+        child.delete()
+
+
+def remove_category_links(category):
+    # Удаляем категорию из всех полей ManyToMany в других категориях
+    for cat in Category.objects.all():
+        cat.parents.remove(category)
+        cat.parentMas.remove(category)
+        cat.children.remove(category)
+        cat.childrens.remove(category)
