@@ -491,17 +491,37 @@ def delete_category_with_links(request, project_id):
                 return JsonResponse({"success": False, "message": "Не передан category_id"}, status=400)
 
             category = Category.objects.get(id=category_id, project_id=project_id)
-            delete_children(category)
+
+            # Удаляем связи, где категория участвует
             remove_category_links(category)
+
+            # Удаляем саму категорию
             category.delete()
 
-            return JsonResponse({"success": True, "message": "Категория и её связи удалены"}, status=200)
+            return JsonResponse({"success": True, "message": "Категория удалена, связи очищены"}, status=200)
+
         except Category.DoesNotExist:
             return JsonResponse({"success": False, "message": "Категория не найдена"}, status=404)
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)}, status=500)
-    else:
-        return JsonResponse({"success": False, "message": "Неподдерживаемый метод запроса"}, status=405)
+
+    return JsonResponse({"success": False, "message": "Неподдерживаемый метод запроса"}, status=405)
+
+
+def remove_category_links(category):
+    # Удаляем из всех родительских и дочерних ManyToMany связей
+    category.parents.clear()
+    category.parentMas.clear()
+    category.children.clear()
+    category.childrens.clear()
+
+    # Также удаляем эту категорию из других, где она упоминалась
+    for cat in Category.objects.all():
+        cat.parents.remove(category)
+        cat.parentMas.remove(category)
+        cat.children.remove(category)
+        cat.childrens.remove(category)
+
 
 
 def delete_children(category):
@@ -511,12 +531,3 @@ def delete_children(category):
         remove_category_links(child)
         print(f"Удаление подкатегории: {child}")
         child.delete()
-
-
-def remove_category_links(category):
-    # Удаляем категорию из всех полей ManyToMany в других категориях
-    for cat in Category.objects.all():
-        cat.parents.remove(category)
-        cat.parentMas.remove(category)
-        cat.children.remove(category)
-        cat.childrens.remove(category)

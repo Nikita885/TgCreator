@@ -21,6 +21,30 @@ function addProjectButton(id, name, condition, tg_token) {
     input.dataset.projectId = id;
     if (condition) input.checked = true;
 
+    input.addEventListener('change', async () => {
+        const projectId = input.dataset.projectId;
+        const condition = input.checked;
+
+        try {
+            const response = await fetch(`/projects/${projectId}/toggle_bot/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify({ condition })
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка на сервере при переключении:', await response.text());
+            } else {
+                console.log('Бот проекта');
+            }
+        } catch (error) {
+            console.error('Сетевой сбой или ошибка запроса:', error);
+        }
+    });
+
     const slider = document.createElement('span');
     slider.className = 'slider';
 
@@ -167,3 +191,5 @@ document.addEventListener('click', function(event) {
         isFormVisible = false;
     }
 });
+
+
